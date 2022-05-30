@@ -131,4 +131,4 @@ dmypy.json
 .idea/
 tasks/
 sample.py
-/datasets/
+datasets/
