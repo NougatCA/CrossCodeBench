@@ -1,4 +1,4 @@
-
+import json
 import re
 import random
 
@@ -105,9 +105,14 @@ def write_task(data, task_dir):
     data["Instance_number"] = num_instance
 
     source = data["Source"][0]
-    with open(os.path.join(task_dir, f"task_{str(max_task_id + 1).zfill(3)}_{source}_classification.json"), mode="w", encoding="utf-8") as f:
+    task_filename = f"task_{str(max_task_id + 1).zfill(3)}_{source}_classification.json"
+    with open(os.path.join(task_dir, task_filename), mode="w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
     print(f"{num_instance} instances dumped.")
+
+    # with open(os.path.join(task_dir, "metadata", task_filename), mode="w", encoding="utf-8") as f:
+    #     json.dump(data.pop("Instances"), f, indent=4, ensure_ascii=False)
+    # print(f"Metadata dumped in ")
 
 
 def main():

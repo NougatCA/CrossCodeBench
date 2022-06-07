@@ -48,7 +48,7 @@ def read_bigclonebench_dataset(data_dir):
                 url1, url2, label = line.strip().split('\t')
                 if url1 not in aux_data or url2 not in aux_data:
                     continue
-                label = "True" if label == 1 else "False"
+                label = "True" if label.strip() == "1" else "False"
                 instances.append(
                     DataInstance(
                         inputs=[aux_data[url1], aux_data[url2]],
