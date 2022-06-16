@@ -5,9 +5,9 @@ import random
 from utils import *
 
 
-def create_meta_data(instances):
+def create_meta_data(instances, sizes):
 
-    data = {
+    meta = {
         # "Prompt Name": [
         #
         # ],
@@ -18,53 +18,53 @@ def create_meta_data(instances):
             "Default"
         ],
         "Source": [
-            "bigclonebench"
+            "function_docstring_mismatch"
+        ],
+        "Type": [
+            "Classification",
+            "Binary",
+            "Pairwise"
         ],
         "BibTex": [
-            """@inproceedings{svajlenko2014towards,
-  title={Towards a big data curated benchmark of inter-project code clones},
-  author={Svajlenko, Jeffrey and Islam, Judith F and Keivanloo, Iman and Roy, Chanchal K and Mia, Mohammad Mamun},
-  booktitle={2014 IEEE International Conference on Software Maintenance and Evolution},
-  pages={476--480},
-  year={2014},
-  organization={IEEE}
-}""",
-            """@inproceedings{wang2020detecting,
-  title={Detecting Code Clones with Graph Neural Network and Flow-Augmented Abstract Syntax Tree},
-  author={Wang, Wenhan and Li, Ge and Ma, Bo and Xia, Xin and Jin, Zhi},
-  booktitle={2020 IEEE 27th International Conference on Software Analysis, Evolution and Reengineering (SANER)},
-  pages={261--271},
+            """@inproceedings{kanade2020learning,
+  title={Learning and evaluating contextual embedding of source code},
+  author={Kanade, Aditya and Maniatis, Petros and Balakrishnan, Gogul and Shi, Kensen},
+  booktitle={International Conference on Machine Learning},
+  pages={5110--5121},
   year={2020},
-  organization={IEEE}
+  organization={PMLR}
 }"""
         ],
         "URL": [
-            "https://github.com/microsoft/CodeXGLUE/tree/main/Code-Code/Clone-detection-BigCloneBench"
+            "https://console.cloud.google.com/storage/browser/cubert/20200621_Python/function_docstring_datasets"
         ],
         "Categories": [
-            "Classification -> Binary"
+            "Classification -> Verification -> Docstring Verification"
         ],
         "Reasoning": [
-            "Reasoning on code semantic"
+            "Reasoning on code functionality"
         ],
         "Definition": [
-            "You are given two pieces of code, your task is to identify whether they are semantically equivalent, "
-            "Construct an answer that is 'True' if they are semantically equivalent and 'False' otherwise"
+            "Given a piece of code and a natural language sentence, this task is a sentence pair "
+            "classification problem which requires you to identify whether the second sentence is "
+            "the correct documentation string of the first sentence. "
+            "If the documentation string is correct, outputs 'Correct', otherwise outputs 'Incorrect'."
         ],
         "Input_language": [
-            "Programming Language -> Java"
+            "Programming Language -> Python",
+            "Natural Language -> English"
         ],
         "Output_language": [
-            "Natural Language -> English"
+            "Programming Language -> Python"
         ],
         "Instruction_language": [
             "Natural Language -> English"
         ],
         "Domains": [
-            "Code Clone"
+            "Docstring"
         ],
         "Instance_number": [
-
+            sizes
         ],
         "Positive Examples": [
 
@@ -72,14 +72,13 @@ def create_meta_data(instances):
         "Negative Examples": [
 
         ],
-        "Instances": [
 
-        ]
     }
 
-    if len(instances) > 65000:
-        instances = random.sample(instances, 65000)
+    # if len(instances) > 65000:
+    #     instances = random.sample(instances, 65000)
 
+    data = {"Instances": []}
     for instance in instances:
         data["Instances"].append({
             "input": instance.inputs,
@@ -87,10 +86,10 @@ def create_meta_data(instances):
             "split": instance.split,
             "idx": instance.idx
         })
-    return data
+    return meta, data
 
 
-def write_task(data, task_dir):
+def write_task(meta, data, task_dir):
 
     max_task_id = 0
     for file_name in os.listdir(task_dir):
@@ -101,27 +100,37 @@ def write_task(data, task_dir):
             if task_id > max_task_id:
                 max_task_id = task_id
 
-    num_instance = len(data["Instances"])
-    data["Instance_number"] = num_instance
+    source = meta["Source"][0].lower()
+    category = meta["Type"][0].lower()
 
-    source = data["Source"][0]
-    task_filename = f"task_{str(max_task_id + 1).zfill(3)}_{source}_classification.json"
-    with open(os.path.join(task_dir, task_filename), mode="w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-    print(f"{num_instance} instances dumped.")
+    meta_filename = f"task_{str(max_task_id + 1).zfill(3)}_{source}_{category}.meta.json"
+    meta_path = os.path.join(task_dir, meta_filename)
+    data_filename = f"task_{str(max_task_id + 1).zfill(3)}_{source}_{category}.data.json"
+    data_path = os.path.join(task_dir, data_filename)
 
-    # with open(os.path.join(task_dir, "metadata", task_filename), mode="w", encoding="utf-8") as f:
-    #     json.dump(data.pop("Instances"), f, indent=4, ensure_ascii=False)
-    # print(f"Metadata dumped in ")
+    if os.path.exists(meta_path):
+        raise ValueError(f"Meta file {meta_path} already exists.")
+    if os.path.exists(data_path):
+        raise ValueError(f"Data file {data_path} already exists.")
+
+    with open(meta_path, mode="w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=4)
+    print(f"Meta data dumped to {meta_path}")
+
+    with open(data_path, mode="w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4)
+
+    num_instance = meta["Instance_number"][0]["total"]
+    print(f"{num_instance} instances dumped as {data_path}")
 
 
 def main():
     task_dir = "../../tasks/"
-    data_dir = os.path.join("../../datasets/", "bigclonebench")
+    data_dir = "../../datasets/"
 
-    instances = read_bigclonebench_dataset(data_dir)
-    data = create_meta_data(instances)
-    write_task(data, task_dir)
+    instances, sizes = read_exception_type_dataset(data_dir)
+    meta, data = create_meta_data(instances, sizes)
+    write_task(meta, data, task_dir)
 
 
 if __name__ == "__main__":

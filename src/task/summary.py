@@ -6,6 +6,7 @@ import pandas as pd
 fields_to_summary = [
     "Contributors",
     "Source",
+    "Type",
     "Categories",
     "Definition",
     "Input_language",
@@ -24,7 +25,7 @@ def main():
 
     for file_name in os.listdir(task_dir):
         file_path = os.path.join(task_dir, file_name)
-        if os.path.isfile(file_path) and file_name.endswith(".json"):
+        if os.path.isfile(file_path) and file_name.endswith(".meta.json"):
             with open(file_path, mode="r", encoding="utf-8") as f:
                 data = json.load(f)
 
@@ -32,11 +33,13 @@ def main():
             for field in fields_to_summary:
                 if field in data:
                     value = data[field]
-                    if isinstance(value, list):
+                    if isinstance(value, list) and len(value) > 1:
                         summary.append("; ".join(value))
-                        if len(value) == 0:
-                            print(f"WARNING: {file_name}: empty field: '{field}'")
                     else:
+                        if isinstance(value, list):
+                            if len(value) == 0:
+                                print(f"WARNING: {file_name}: empty field: '{field}'")
+                            value = value[0]
                         try:
                             value = str(value)
                             summary.append(value)

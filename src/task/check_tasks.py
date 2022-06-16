@@ -6,6 +6,7 @@ import json
 fields_to_check = [
     "Contributors",
     "Source",
+    "Type",
     "BibTex",
     "URL",
     "Reasoning",
