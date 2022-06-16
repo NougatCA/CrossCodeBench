@@ -126,6 +126,97 @@ def read_function_docstring_mismatch_dataset(data_dir):
         for idx, line in enumerate(tqdm(lines, desc="Reading", total=len(lines))):
             js = json.loads(line.strip())
             code = js["function"]
+            doc = js["docstring"]
+            target_txt = js["label"]
+            instances.append(
+                DataInstance(
+                    inputs=[code, doc],
+                    outputs=target_txt,
+                    split=split,
+                    idx=str(idx)
+                )
+            )
+            sizes[split] += 1
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_variable_misuse_dataset(data_dir):
+
+    data_dir = os.path.join(data_dir, "variable_misuse")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, desc="Reading", total=len(lines))):
+            js = json.loads(line.strip())
+            code = js["function"]
+            target_txt = js["label"]
+            instances.append(
+                DataInstance(
+                    inputs=code,
+                    outputs=target_txt,
+                    split=split,
+                    idx=str(idx)
+                )
+            )
+            sizes[split] += 1
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_swapped_operands_dataset(data_dir):
+
+    data_dir = os.path.join(data_dir, "swapped_operands")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, desc="Reading", total=len(lines))):
+            js = json.loads(line.strip())
+            code = js["function"]
+            target_txt = js["label"]
+            instances.append(
+                DataInstance(
+                    inputs=code,
+                    outputs=target_txt,
+                    split=split,
+                    idx=str(idx)
+                )
+            )
+            sizes[split] += 1
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_wrong_binary_operator_dataset(data_dir):
+
+    data_dir = os.path.join(data_dir, "wrong_binary_operator")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, desc="Reading", total=len(lines))):
+            js = json.loads(line.strip())
+            code = js["function"]
             target_txt = js["label"]
             instances.append(
                 DataInstance(

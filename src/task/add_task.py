@@ -1,6 +1,5 @@
 import json
 import re
-import random
 
 from utils import *
 
@@ -18,12 +17,11 @@ def create_meta_data(instances, sizes):
             "Default"
         ],
         "Source": [
-            "function_docstring_mismatch"
+            "wrong_binary_operator"
         ],
         "Type": [
             "Classification",
-            "Binary",
-            "Pairwise"
+            "Binary"
         ],
         "BibTex": [
             """@inproceedings{kanade2020learning,
@@ -36,32 +34,29 @@ def create_meta_data(instances, sizes):
 }"""
         ],
         "URL": [
-            "https://console.cloud.google.com/storage/browser/cubert/20200621_Python/function_docstring_datasets"
+            "https://console.cloud.google.com/storage/browser/cubert/20200621_Python/wrong_binary_operator_datasets"
         ],
         "Categories": [
-            "Classification -> Verification -> Docstring Verification"
+            "Detection -> Defect Detection"
         ],
         "Reasoning": [
-            "Reasoning on code functionality"
+            "Reasoning on code defect"
         ],
         "Definition": [
-            "Given a piece of code and a natural language sentence, this task is a sentence pair "
-            "classification problem which requires you to identify whether the second sentence is "
-            "the correct documentation string of the first sentence. "
-            "If the documentation string is correct, outputs 'Correct', otherwise outputs 'Incorrect'."
+            "In this task, you are given a function, "
+            "answer 'Wrong binary operator' if any binary operator in the function is incorrect, 'Correct' otherwise."
         ],
         "Input_language": [
-            "Programming Language -> Python",
-            "Natural Language -> English"
+            "Programming Language -> Python"
         ],
         "Output_language": [
-            "Programming Language -> Python"
+            "Natural Language -> English"
         ],
         "Instruction_language": [
             "Natural Language -> English"
         ],
         "Domains": [
-            "Docstring"
+            "Operator"
         ],
         "Instance_number": [
             sizes
@@ -125,10 +120,11 @@ def write_task(meta, data, task_dir):
 
 
 def main():
+
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_exception_type_dataset(data_dir)
+    instances, sizes = read_wrong_binary_operator_dataset(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
