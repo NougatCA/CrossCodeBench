@@ -1,4 +1,3 @@
-import json
 import re
 
 from utils import *
@@ -16,47 +15,61 @@ def create_meta_data(instances, sizes):
         "Contributors": [
             "Default"
         ],
+        # dataset, task name
         "Source": [
-            "wrong_binary_operator"
+            "code_trans_cs_java"
         ],
+        # Classification, Binary/Multi-label, Pairwise
+        # Translation
         "Type": [
-            "Classification",
-            "Binary"
+            "Translation"
         ],
         "BibTex": [
-            """@inproceedings{kanade2020learning,
-  title={Learning and evaluating contextual embedding of source code},
-  author={Kanade, Aditya and Maniatis, Petros and Balakrishnan, Gogul and Shi, Kensen},
-  booktitle={International Conference on Machine Learning},
-  pages={5110--5121},
-  year={2020},
-  organization={PMLR}
+            """@article{lu2021codexglue,
+  title={Codexglue: A machine learning benchmark dataset for code understanding and generation},
+  author={Lu, Shuai and Guo, Daya and Ren, Shuo and Huang, Junjie and Svyatkovskiy, Alexey and Blanco, Ambrosio and Clement, Colin and Drain, Dawn and Jiang, Daxin and Tang, Duyu and others},
+  journal={arXiv preprint arXiv:2102.04664},
+  year={2021}
 }"""
         ],
         "URL": [
-            "https://console.cloud.google.com/storage/browser/cubert/20200621_Python/wrong_binary_operator_datasets"
+            "https://github.com/microsoft/CodeXGLUE/tree/main/Code-Code/code-to-code-trans",
         ],
+        # Detection -> Defect/Clone Detection
+        # Fill in the blank -> Exception Type
+        # Classification -> Verification -> Docstring/Code Verification
+        # Translation
         "Categories": [
-            "Detection -> Defect Detection"
+            "Translation"
         ],
+        # code defect
+        # code semantic similarity
+        # code semantic
+        # code functionality
+        # natural language and code semantic similarity
         "Reasoning": [
-            "Reasoning on code defect"
+
         ],
         "Definition": [
-            "In this task, you are given a function, "
-            "answer 'Wrong binary operator' if any binary operator in the function is incorrect, 'Correct' otherwise."
+            "Given a code sequence in C#, generate an equivalent code sequence in Java with the same functionality."
         ],
         "Input_language": [
-            "Programming Language -> Python"
+            "Programming Language -> C#"
         ],
         "Output_language": [
-            "Natural Language -> English"
+            "Programming Language -> Java"
         ],
         "Instruction_language": [
             "Natural Language -> English"
         ],
+        # Software system security
+        # Code semantic
+        # Docstring
+        # Variable
+        # Operands
+        # Operator
         "Domains": [
-            "Operator"
+            "Functionality"
         ],
         "Instance_number": [
             sizes
@@ -124,7 +137,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_wrong_binary_operator_dataset(data_dir)
+    instances, sizes = read_code_trans_cs_java(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
