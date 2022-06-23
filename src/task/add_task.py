@@ -17,30 +17,34 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "code_trans_cs_java"
+            "any_code_completion"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
         "Type": [
-            "Translation"
+            "Generation",
+            "Code"
         ],
         "BibTex": [
-            """@article{lu2021codexglue,
-  title={Codexglue: A machine learning benchmark dataset for code understanding and generation},
-  author={Lu, Shuai and Guo, Daya and Ren, Shuo and Huang, Junjie and Svyatkovskiy, Alexey and Blanco, Ambrosio and Clement, Colin and Drain, Dawn and Jiang, Daxin and Tang, Duyu and others},
-  journal={arXiv preprint arXiv:2102.04664},
-  year={2021}
+            """@inproceedings{alon2020structural,
+  title={Structural language models of code},
+  author={Alon, Uri and Sadaka, Roy and Levy, Omer and Yahav, Eran},
+  booktitle={International Conference on Machine Learning},
+  pages={245--256},
+  year={2020},
+  organization={PMLR}
 }"""
         ],
         "URL": [
-            "https://github.com/microsoft/CodeXGLUE/tree/main/Code-Code/code-to-code-trans",
+            "https://github.com/tech-srl/slm-code-generation/",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
         # Classification -> Verification -> Docstring/Code Verification
         # Translation
+        # Code Modification -> Bug Fixing
         "Categories": [
-            "Translation"
+            "Fill in the blank -> Code expression"
         ],
         # code defect
         # code semantic similarity
@@ -51,10 +55,11 @@ def create_meta_data(instances, sizes):
 
         ],
         "Definition": [
-            "Given a code sequence in C#, generate an equivalent code sequence in Java with the same functionality."
+            "Your task is to generate a missing piece of source code in a given function. "
+            "The missing place is indicated by a special token 'PRED'."
         ],
         "Input_language": [
-            "Programming Language -> C#"
+            "Programming Language -> Java"
         ],
         "Output_language": [
             "Programming Language -> Java"
@@ -68,8 +73,10 @@ def create_meta_data(instances, sizes):
         # Variable
         # Operands
         # Operator
+        # Bug
+        # Code
         "Domains": [
-            "Functionality"
+            "Code"
         ],
         "Instance_number": [
             sizes
@@ -137,7 +144,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_code_trans_cs_java(data_dir)
+    instances, sizes = read_any_code_completion(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 

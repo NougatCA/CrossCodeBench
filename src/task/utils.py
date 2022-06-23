@@ -325,7 +325,6 @@ def read_code_trans_java_cs(data_dir):
             )
             sizes[split] += 1
     assert sum(sizes.values()) == len(instances)
-    assert sum(sizes.values()) == len(instances)
     sizes["total"] = len(instances)
     return instances, sizes
 
@@ -357,6 +356,107 @@ def read_code_trans_cs_java(data_dir):
             )
             sizes[split] += 1
     assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_trans_coder(data_dir, source_lang, target_lang):
+    assert source_lang in ["java", "python", "cpp"]
+    assert target_lang in ["java", "python", "cpp"]
+
+    data_dir = os.path.join(data_dir, "trans_coder")
+    instances = []
+    sizes = {
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["valid", "test"]:
+        with open(os.path.join(data_dir, f"transcoder_{split}.{source_lang}.tok"), mode="r", encoding="utf-8") as src_f, \
+             open(os.path.join(data_dir, f"transcoder_{split}.{target_lang}.tok"), mode="r", encoding="utf-8") as tgt_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+        assert len(sources) == len(targets)
+        for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
+            src_idx, source = source.split(" | ", 1)
+            src_idx = src_idx.strip()
+            source = source.strip()
+
+            tgt_idx, target = target.split(" | ", 1)
+            tgt_idx = tgt_idx.strip()
+            target = target.strip()
+
+            assert src_idx == tgt_idx
+
+            instances.append(
+                DataInstance(
+                    inputs=source,
+                    outputs=target,
+                    split=split,
+                    idx=src_idx
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_bfp(data_dir, subset):
+    assert subset in ["small", "medium"]
+    data_dir = os.path.join(data_dir, "bfp", subset)
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.buggy-fixed.buggy"), mode="r", encoding="utf-8") as src_f, \
+             open(os.path.join(data_dir, f"{split}.buggy-fixed.fixed"), mode="r", encoding="utf-8") as tgt_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+        assert len(sources) == len(targets)
+        for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
+            instances.append(
+                DataInstance(
+                    inputs=source,
+                    outputs=target,
+                    split=split,
+                    idx=str(idx)
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_any_code_completion(data_dir):
+    data_dir = os.path.join(data_dir, "any_code_completion")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"data.TargetType.seq.{split}.source.txt"), mode="r", encoding="utf-8") as src_f, \
+             open(os.path.join(data_dir, f"data.TargetType.seq.{split}.target.txt"), mode="r", encoding="utf-8") as tgt_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+        assert len(sources) == len(targets)
+        for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
+            instances.append(
+                DataInstance(
+                    inputs=source,
+                    outputs=target,
+                    split=split,
+                    idx=str(idx)
+                )
+            )
+            sizes[split] += 1
     assert sum(sizes.values()) == len(instances)
     sizes["total"] = len(instances)
     return instances, sizes
