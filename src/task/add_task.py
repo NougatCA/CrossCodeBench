@@ -17,26 +17,25 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "any_code_completion"
+            "code_search_net_filtered_java"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
+        # Generation
+        # Summarization
         "Type": [
-            "Generation",
-            "Code"
+            "Summarization"
         ],
         "BibTex": [
-            """@inproceedings{alon2020structural,
-  title={Structural language models of code},
-  author={Alon, Uri and Sadaka, Roy and Levy, Omer and Yahav, Eran},
-  booktitle={International Conference on Machine Learning},
-  pages={245--256},
-  year={2020},
-  organization={PMLR}
+            """@article{husain2019codesearchnet,
+  title={Codesearchnet challenge: Evaluating the state of semantic code search},
+  author={Husain, Hamel and Wu, Ho-Hsiang and Gazit, Tiferet and Allamanis, Miltiadis and Brockschmidt, Marc},
+  journal={arXiv preprint arXiv:1909.09436},
+  year={2019}
 }"""
         ],
         "URL": [
-            "https://github.com/tech-srl/slm-code-generation/",
+            "https://github.com/microsoft/CodeXGLUE/tree/main/Code-Text/code-to-text",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -44,7 +43,7 @@ def create_meta_data(instances, sizes):
         # Translation
         # Code Modification -> Bug Fixing
         "Categories": [
-            "Fill in the blank -> Code expression"
+            "Summarization"
         ],
         # code defect
         # code semantic similarity
@@ -52,17 +51,16 @@ def create_meta_data(instances, sizes):
         # code functionality
         # natural language and code semantic similarity
         "Reasoning": [
-
+            "Reasoning on code semantic"
         ],
         "Definition": [
-            "Your task is to generate a missing piece of source code in a given function. "
-            "The missing place is indicated by a special token 'PRED'."
+            "Given a function written in Java, you have to generate natural language comments"
         ],
         "Input_language": [
             "Programming Language -> Java"
         ],
         "Output_language": [
-            "Programming Language -> Java"
+            "Natural Language -> English"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -76,7 +74,7 @@ def create_meta_data(instances, sizes):
         # Bug
         # Code
         "Domains": [
-            "Code"
+            "Code semantic"
         ],
         "Instance_number": [
             sizes
@@ -144,7 +142,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_any_code_completion(data_dir)
+    instances, sizes = read_code_search_net_filtered(data_dir, subset="java")
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
