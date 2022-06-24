@@ -17,7 +17,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "code_search_net_filtered_java"
+            "funcom_raw"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -27,15 +27,16 @@ def create_meta_data(instances, sizes):
             "Summarization"
         ],
         "BibTex": [
-            """@article{husain2019codesearchnet,
-  title={Codesearchnet challenge: Evaluating the state of semantic code search},
-  author={Husain, Hamel and Wu, Ho-Hsiang and Gazit, Tiferet and Allamanis, Miltiadis and Brockschmidt, Marc},
-  journal={arXiv preprint arXiv:1909.09436},
+            """@inproceedings{leclair2019recommendations,
+  title={Recommendations for Datasets for Source Code Summarization},
+  author={LeClair, Alexander and McMillan, Collin},
+  booktitle={Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers)},
+  pages={3931--3937},
   year={2019}
 }"""
         ],
         "URL": [
-            "https://github.com/microsoft/CodeXGLUE/tree/main/Code-Text/code-to-text",
+            "http://leclair.tech/data/funcom/",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -143,7 +144,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_code_search_net_filtered(data_dir, subset="java")
+    instances, sizes = read_code_trans_cs_java(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 

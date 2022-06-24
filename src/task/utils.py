@@ -317,8 +317,8 @@ def read_code_trans_java_cs(data_dir):
         for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
             instances.append(
                 DataInstance(
-                    inputs=source,
-                    outputs=target,
+                    inputs=source.strip(),
+                    outputs=target.strip(),
                     split=split,
                     idx=str(idx)
                 )
@@ -348,8 +348,8 @@ def read_code_trans_cs_java(data_dir):
         for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
             instances.append(
                 DataInstance(
-                    inputs=source,
-                    outputs=target,
+                    inputs=source.strip(),
+                    outputs=target.strip(),
                     split=split,
                     idx=str(idx)
                 )
@@ -578,6 +578,39 @@ def read_code_search_net_filtered(data_dir, subset):
                     outputs=target,
                     split=split,
                     idx=js["path"]
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_funcom_tokenized(data_dir):
+    data_dir = os.path.join(data_dir, "funcom", "tokenized")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"functions.{split}"), mode="r", encoding="utf-8") as src_f, \
+                open(os.path.join(data_dir, f"comments.{split}"), mode="r", encoding="utf-8") as tgt_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+        assert len(sources) == len(targets)
+        for source, target in tqdm(zip(sources, targets), desc="Reading", total=len(sources)):
+            src_idx, source = source.split("\t", 1)
+            tgt_idx, target = target.split("\t", 1)
+            assert src_idx == tgt_idx
+            instances.append(
+                DataInstance(
+                    inputs=source,
+                    outputs=target,
+                    split=split,
+                    idx=src_idx
                 )
             )
             sizes[split] += 1
