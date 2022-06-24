@@ -54,7 +54,8 @@ def create_meta_data(instances, sizes):
             "Reasoning on code semantic"
         ],
         "Definition": [
-            "Given a function written in Java, you have to generate natural language comments"
+            "Given a function written in Java, you have to generate a typically short natural language comment that "
+            "summarizes the overall actions of the function."
         ],
         "Input_language": [
             "Programming Language -> Java"
