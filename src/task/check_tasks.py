@@ -27,7 +27,7 @@ def check_all_tasks():
     task_dir = "../../tasks/"
     for file_name in os.listdir(task_dir):
         file_path = os.path.join(task_dir, file_name)
-        if os.path.isfile(file_path) and file_name.endswith(".json"):
+        if os.path.isfile(file_path) and file_name.endswith("meta.json"):
             with open(file_path, mode="r", encoding="utf-8") as f:
                 data = json.load(f)
                 for field in fields_to_check:

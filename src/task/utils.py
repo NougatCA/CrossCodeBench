@@ -420,8 +420,8 @@ def read_bfp(data_dir, subset):
         for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
             instances.append(
                 DataInstance(
-                    inputs=source,
-                    outputs=target,
+                    inputs=source.strip(),
+                    outputs=target.strip(),
                     split=split,
                     idx=str(idx)
                 )
@@ -450,8 +450,8 @@ def read_any_code_completion(data_dir):
         for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
             instances.append(
                 DataInstance(
-                    inputs=source,
-                    outputs=target,
+                    inputs=source.strip(),
+                    outputs=target.strip(),
                     split=split,
                     idx=str(idx)
                 )
@@ -480,8 +480,8 @@ def read_tp_mutant(data_dir):
         for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
             instances.append(
                 DataInstance(
-                    inputs=source,
-                    outputs=target,
+                    inputs=source.strip(),
+                    outputs=target.strip(),
                     split=split,
                     idx=str(idx)
                 )
@@ -510,8 +510,8 @@ def read_tp_fixing(data_dir):
         for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
             instances.append(
                 DataInstance(
-                    inputs=source,
-                    outputs=target,
+                    inputs=source.strip(),
+                    outputs=target.strip(),
                     split=split,
                     idx=str(idx)
                 )
@@ -542,8 +542,8 @@ def read_tap(data_dir, subset):
         for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
             instances.append(
                 DataInstance(
-                    inputs=source,
-                    outputs=target,
+                    inputs=source.strip(),
+                    outputs=target.strip(),
                     split=split,
                     idx=str(idx)
                 )
@@ -607,10 +607,280 @@ def read_funcom_tokenized(data_dir):
             assert src_idx == tgt_idx
             instances.append(
                 DataInstance(
-                    inputs=source,
-                    outputs=target,
+                    inputs=source.strip(),
+                    outputs=target.strip(),
                     split=split,
                     idx=src_idx
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_funcom_raw(data_dir):
+    data_dir = os.path.join(data_dir, "funcom", "raw")
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    with open(os.path.join(data_dir, "functions.json"), mode="r", encoding="utf-8") as f:
+        fun_data = json.load(f)
+    with open(os.path.join(data_dir, "comments.json"), mode="r", encoding="utf-8") as f:
+        com_data = json.load(f)
+
+    for k, v in fun_data.items():
+        assert k in com_data
+        function = v.strip()
+        comment = com_data[k].strip()
+        instances.append(
+            DataInstance(
+                inputs=function,
+                outputs=comment,
+                split="",
+                idx=str(k)
+            )
+        )
+        sizes["total"] += 1
+
+    return instances, sizes
+
+
+def read_deep_com(data_dir):
+    data_dir = os.path.join(data_dir, "deep_com")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, desc="Reading", total=len(lines))):
+            js = json.loads(line.strip())
+            code = js["code"].strip()
+            doc = js["nl"].strip()
+            instances.append(
+                DataInstance(
+                    inputs=code,
+                    outputs=doc,
+                    split=split,
+                    idx=str(idx)
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_tl_code_sum(data_dir):
+    data_dir = os.path.join(data_dir, "tl_code_sum")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, desc="Reading", total=len(lines))):
+            js = json.loads(line.strip())
+            code = js["code"].strip()
+            doc = js["comment"].strip()
+            instances.append(
+                DataInstance(
+                    inputs=code,
+                    outputs=doc,
+                    split=split,
+                    idx=str(js["id"])
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_tl_api_seq_sum(data_dir):
+    data_dir = os.path.join(data_dir, "tl_code_sum")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, desc="Reading", total=len(lines))):
+            js = json.loads(line.strip())
+            api_seq = js["api_seq"]
+            doc = js["comment"].strip()
+            instances.append(
+                DataInstance(
+                    inputs=api_seq,
+                    outputs=doc,
+                    split=split,
+                    idx=str(js["id"])
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_tl_api_seq_sum_large(data_dir):
+    data_dir = os.path.join(data_dir, "api_sum")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, desc="Reading", total=len(lines))):
+            js = json.loads(line.strip())
+            api_seq = js["api_seq"]
+            doc = js["comment"].strip()
+            instances.append(
+                DataInstance(
+                    inputs=api_seq,
+                    outputs=doc,
+                    split=split,
+                    idx=str(js["id"])
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_code_docstring_corpus_sum(data_dir):
+    def escape_code(s):
+        s = s.strip()
+        # s = s.replace(" DCNL DCSP ", "\n")
+        s = s.replace(" DCNL DCSP ", "\n\t")
+        s = s.replace(" DCNL  DCSP ", "\n\t")
+        s = s.replace(" DCNL ", "\n")
+        s = s.replace(" DCSP ", " ")
+        while "\t " in s:
+            s = s.replace("\t ", "\t\t")
+        return s
+
+    def escape_nl(s):
+        s = s.strip("'")
+        s = s.strip()
+        if "DCNL" in s:
+            s = s.split("DCNL")[0]
+        s = s.replace("DCSP", " ")
+        return " ".join(s.split())
+
+    data_dir = os.path.join(data_dir, "code_docstring_corpus")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"data_ps.declbodies.{split}"), mode="r", encoding="utf-8") as src_f, \
+             open(os.path.join(data_dir, f"data_ps.descriptions.{split}"), mode="r", encoding="utf-8") as tgt_f, \
+             open(os.path.join(data_dir, f"data_ps.metadata.{split}"), mode="r", encoding="utf-8") as meta_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+            metas = meta_f.readlines()
+        assert len(sources) == len(targets) == len(metas)
+        for source, target, meta in tqdm(zip(sources, targets, metas), desc="Reading", total=len(sources)):
+            source = escape_code(source)
+            target = escape_nl(target)
+            idx = "#L".join(meta.strip().split())
+            instances.append(
+                DataInstance(
+                    inputs=source.strip(),
+                    outputs=target.strip(),
+                    split=split,
+                    idx=idx
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_code_docstring_corpus_gen(data_dir):
+    def escape_code(s):
+        s = s.strip()
+        # s = s.replace(" DCNL DCSP ", "\n")
+        s = s.replace(" DCNL DCSP ", "\n\t")
+        s = s.replace(" DCNL  DCSP ", "\n\t")
+        s = s.replace(" DCNL ", "\n")
+        s = s.replace(" DCSP ", " ")
+        while "\t " in s:
+            s = s.replace("\t ", "\t\t")
+        return s
+
+    def escape_body(s):
+        s = escape_code(s)
+        return s.replace("DCSP ", "\t")
+
+    def escape_nl(s):
+        s = s.strip("'")
+        s = s.strip()
+        if "DCNL" in s:
+            s = s.split("DCNL")[0]
+        s = s.replace("DCSP", " ")
+        return " ".join(s.split())
+
+    data_dir = os.path.join(data_dir, "code_docstring_corpus")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"data_ps.declarations.{split}"), mode="r", encoding="utf-8") as decl_f, \
+             open(os.path.join(data_dir, f"data_ps.descriptions.{split}"), mode="r", encoding="utf-8") as desc_f, \
+             open(os.path.join(data_dir, f"data_ps.bodies.{split}"), mode="r", encoding="utf-8") as body_f, \
+             open(os.path.join(data_dir, f"data_ps.metadata.{split}"), mode="r", encoding="utf-8") as meta_f:
+            decls = decl_f.readlines()
+            descs = desc_f.readlines()
+            targets = body_f.readlines()
+            metas = meta_f.readlines()
+        assert len(decls) == len(descs) == len(targets) == len(metas)
+
+        for decl, desc, target, meta in zip(decls, descs, targets, metas):
+            decl = escape_code(decl)
+            desc = escape_nl(desc)
+            target = escape_body(target)
+            idx = "#L".join(meta.strip().split())
+            instances.append(
+                DataInstance(
+                    inputs=[decl.strip(), desc.strip()],
+                    outputs=target.strip(),
+                    split=split,
+                    idx=idx
                 )
             )
             sizes[split] += 1

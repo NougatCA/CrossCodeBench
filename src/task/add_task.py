@@ -17,26 +17,26 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "funcom_raw"
+            "code_docstring_corpus_gen"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
         # Generation
         # Summarization
         "Type": [
-            "Summarization"
+            "Generation"
         ],
         "BibTex": [
-            """@inproceedings{leclair2019recommendations,
-  title={Recommendations for Datasets for Source Code Summarization},
-  author={LeClair, Alexander and McMillan, Collin},
-  booktitle={Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers)},
-  pages={3931--3937},
-  year={2019}
+            """@inproceedings{miceli2017parallel,
+  title={A Parallel Corpus of Python Functions and Documentation Strings for Automated Code Documentation and Code Generation},
+  author={Miceli-Barone, Antonio Valerio and Sennrich, Rico},
+  booktitle={Proceedings of the Eighth International Joint Conference on Natural Language Processing (Volume 2: Short Papers)},
+  pages={314--319},
+  year={2017}
 }"""
         ],
         "URL": [
-            "http://leclair.tech/data/funcom/",
+            "https://github.com/EdinburghNLP/code-docstring-corpus",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -44,7 +44,7 @@ def create_meta_data(instances, sizes):
         # Translation
         # Code Modification -> Bug Fixing
         "Categories": [
-            "Summarization"
+            "Code Generation"
         ],
         # code defect
         # code semantic similarity
@@ -52,14 +52,16 @@ def create_meta_data(instances, sizes):
         # code functionality
         # natural language and code semantic similarity
         "Reasoning": [
-            "Reasoning on code semantic"
+            ""
         ],
         "Definition": [
-            "Given a function written in Java, you have to generate a typically short natural language comment that "
-            "summarizes the overall actions of the function."
+            "In this task, you are given two sequences, "
+            "the first one is a declaration statement of a Python function, "
+            "and the second one is a natural language description, "
+            "you need to generate a function body that match the declaration and the description."
         ],
         "Input_language": [
-            "Programming Language -> Java"
+            "Programming Language -> Python"
         ],
         "Output_language": [
             "Natural Language -> English"
@@ -76,7 +78,7 @@ def create_meta_data(instances, sizes):
         # Bug
         # Code
         "Domains": [
-            "Code semantic"
+            "Code"
         ],
         "Instance_number": [
             sizes
@@ -144,7 +146,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_code_trans_cs_java(data_dir)
+    instances, sizes = read_code_docstring_corpus_gen(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
