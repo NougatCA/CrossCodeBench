@@ -9,7 +9,7 @@ from typing import Union
 @dataclass
 class DataInstance:
     inputs: Union[str, list[str]]
-    outputs: str
+    outputs: Union[str, list[str]]
     split: str
     idx: str
 
@@ -881,6 +881,75 @@ def read_code_docstring_corpus_gen(data_dir):
                     outputs=target.strip(),
                     split=split,
                     idx=idx
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_concode(data_dir):
+
+    data_dir = os.path.join(data_dir, "concode")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, total=len(lines), desc=f"Loading {split} data")):
+            js = json.loads(line.strip())
+            source = " ".join(js["nl"])
+            target = " ".join(js["code"])
+            instances.append(
+                DataInstance(
+                    inputs=source,
+                    outputs=target,
+                    split=split,
+                    idx=str(idx)
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_many_types_4_typescript(data_dir):
+
+    def convert_target(tokens: list[str], labels: list[str]):
+        assert len(tokens) == len(labels)
+        results = [f"{token}: {label}" for token,  label in zip(tokens, labels) if label != "null"]
+        if len(results) == 0:
+            results.append("None")
+        return results
+
+    data_dir = os.path.join(data_dir, "many_types_4_typescript")
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, total=len(lines), desc=f"Loading {split} data")):
+            js = json.loads(line.strip())
+            source = " ".join(js["tokens"])
+            target = convert_target(tokens=js["tokens"], labels=js["labels"])
+            idx = "#".join([js["url"], js["path"], js["commit_hash"]])
+            instances.append(
+                DataInstance(
+                    inputs=source,
+                    outputs=target,
+                    split=split,
+                    idx=str(idx)
                 )
             )
             sizes[split] += 1

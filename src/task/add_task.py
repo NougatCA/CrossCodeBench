@@ -17,54 +17,58 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "code_docstring_corpus_gen"
+            "many_types_4_typescript"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
         # Generation
         # Summarization
+        # Tagging
         "Type": [
-            "Generation"
+            "Tagging"
         ],
         "BibTex": [
-            """@inproceedings{miceli2017parallel,
-  title={A Parallel Corpus of Python Functions and Documentation Strings for Automated Code Documentation and Code Generation},
-  author={Miceli-Barone, Antonio Valerio and Sennrich, Rico},
-  booktitle={Proceedings of the Eighth International Joint Conference on Natural Language Processing (Volume 2: Short Papers)},
-  pages={314--319},
-  year={2017}
-}"""
+            """@INPROCEEDINGS{9796285,
+  author={Jesse, Kevin and Devanbu, Premkumar T.},
+  booktitle={2022 IEEE/ACM 19th International Conference on Mining Software Repositories (MSR)}, 
+  title={ManyTypes4TypeScript: A Comprehensive TypeScript Dataset for Sequence-Based Type Inference}, 
+  year={2022},
+  volume={},
+  number={},
+  pages={294-298},
+  doi={10.1145/3524842.3528507}}"""
         ],
         "URL": [
-            "https://github.com/EdinburghNLP/code-docstring-corpus",
+            "https://github.com/microsoft/CodeXGLUE/tree/main/Code-Code/TypePrediction-TypeScript",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
         # Classification -> Verification -> Docstring/Code Verification
         # Translation
         # Code Modification -> Bug Fixing
+        # Named Entity Recognition -> Type Prediction
         "Categories": [
-            "Code Generation"
+            "Named Entity Recognition -> Type Prediction"
         ],
         # code defect
         # code semantic similarity
         # code semantic
         # code functionality
         # natural language and code semantic similarity
+        # variable type
         "Reasoning": [
-            ""
+            "Reasoning on variable type"
         ],
         "Definition": [
-            "In this task, you are given two sequences, "
-            "the first one is a declaration statement of a Python function, "
-            "and the second one is a natural language description, "
-            "you need to generate a function body that match the declaration and the description."
+            "Given a sequence of source code, the task is to predict the correct type "
+            "for a particular variable, parameter, or function. "
+            "Generate the variables to be predicted and their corresponding types, separated by colons."
         ],
         "Input_language": [
-            "Programming Language -> Python"
+            "Programming Language -> TypeScript"
         ],
         "Output_language": [
-            "Natural Language -> English"
+            "Programming Language -> TypeScript -> Variable: Type"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -78,7 +82,7 @@ def create_meta_data(instances, sizes):
         # Bug
         # Code
         "Domains": [
-            "Code"
+            "Variable"
         ],
         "Instance_number": [
             sizes
@@ -146,7 +150,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_code_docstring_corpus_gen(data_dir)
+    instances, sizes = read_many_types_4_typescript(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
