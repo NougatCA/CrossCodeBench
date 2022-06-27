@@ -59,6 +59,9 @@ def create_meta_data(instances, sizes):
         "Reasoning": [
             "Reasoning on variable type"
         ],
+        "Prompt": [
+            ""
+        ],
         "Definition": [
             "Given a sequence of source code, the task is to predict the correct type "
             "for a particular variable, parameter, or function. "
