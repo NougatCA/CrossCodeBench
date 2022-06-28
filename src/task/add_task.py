@@ -145,7 +145,7 @@ def write_task(meta, data, task_dir):
         json.dump(data, f, indent=4)
 
     num_instance = meta["Instance_number"][0]["total"]
-    print(f"{num_instance} instances dumped as {data_path}")
+    print(f"{num_instance} instances dumped to {data_path}")
 
 
 def main():

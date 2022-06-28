@@ -924,7 +924,7 @@ def read_many_types_4_typescript(data_dir):
 
     def convert_target(tokens: list[str], labels: list[str]):
         assert len(tokens) == len(labels)
-        results = [f"{token}: {label}" for token,  label in zip(tokens, labels) if label != "null"]
+        results = [f"{token}: {label}" for token, label in zip(tokens, labels) if label is not None and label != "null"]
         if len(results) == 0:
             results.append("None")
         return results
