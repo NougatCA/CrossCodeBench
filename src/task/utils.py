@@ -1163,3 +1163,124 @@ def read_sevc(data_dir, subset):
             )
             sizes["total"] += 1
     return instances, sizes
+
+
+def read_draper(data_dir):
+    import pandas as pd
+    import h5py
+    data_dir = os.path.join(data_dir, "draper")
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with h5py.File(os.path.join(data_dir, f"VDISC_{split}.hdf5"), "r") as data:
+            mydf = pd.DataFrame(list(data['functionSource']))
+            mydf['CWE-119'] = list(data['CWE-119'])
+            mydf['CWE-120'] = list(data['CWE-120'])
+            mydf['CWE-469'] = list(data['CWE-469'])
+            mydf['CWE-476'] = list(data['CWE-476'])
+            mydf['CWE-other'] = list(data['CWE-other'])
+        mydf.rename(columns={0: 'functionSource'}, inplace=True)
+        for col in range(1, 6):
+            mydf.iloc[:, col] = mydf.iloc[:, col].map({False: 0, True: 1})
+        codes = [s.decode() for s in list(mydf["functionSource"])]
+        labels = []
+        for a, b, c, d, e in zip(mydf["CWE-119"], mydf["CWE-120"], mydf["CWE-469"], mydf["CWE-476"], mydf["CWE-other"]):
+            if a + b + c + d + e > 0:
+                labels.append(1)
+            else:
+                labels.append(0)
+        assert len(codes) == len(labels)
+        for idx, (code, label) in enumerate(zip(codes, labels)):
+            instances.append(
+                DataInstance(
+                    inputs=code,
+                    outputs="Yes" if label == 1 else "No",
+                    split=split,
+                    idx=str(idx),
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_buffer_overrun(data_dir):
+    data_dir = os.path.join(data_dir, "buffer_overrun")
+    instances = []
+    sizes = {
+        "train": 0,
+        "test": 0
+    }
+    global_idx = 0
+    with open(os.path.join(data_dir, "training_100.txt"), mode="r", encoding="utf-8") as src_f, \
+         open(os.path.join(data_dir, "training_100_labels.txt"), mode="r", encoding="utf-8") as tgt_f:
+        codes = []
+        labels = []
+        start = 0
+        src_lines = src_f.read().split("\n")
+        for target in tgt_f.readlines():
+            end, label = target.strip().split(":=:")
+            end = int(end)
+            codes.append("\n".join(src_lines[start: end + 1]))
+            if label == "0":
+                labels.append("Yes")
+            else:
+                labels.append("No")
+            start = end + 1
+        assert len(codes) == len(labels)
+        for code, label in zip(codes, labels):
+            instances.append(
+                DataInstance(
+                    inputs=code.strip(),
+                    outputs=label.strip(),
+                    split="train",
+                    idx=str(global_idx),
+                )
+            )
+            global_idx += 1
+            sizes["train"] += 1
+
+    for name in ["1", "2", "3", "4"]:
+        with open(os.path.join(data_dir, f"test_{name}_100.txt"), mode="r", encoding="utf-8") as src_f, \
+             open(os.path.join(data_dir, f"test_{name}_100_labels.txt"), mode="r", encoding="utf-8") as tgt_f:
+            codes = []
+            labels = []
+            start = 0
+            src_lines = src_f.read().split("\n")
+            for target in tgt_f.readlines():
+                end, label = target.strip().split(":=:")
+                end = int(end)
+                codes.append("\n".join(src_lines[start: end + 1]))
+                if label == "0":
+                    labels.append("Yes")
+                else:
+                    labels.append("No")
+                start = end + 1
+            assert len(codes) == len(labels)
+            for code, label in zip(codes, labels):
+                instances.append(
+                    DataInstance(
+                        inputs=code.strip(),
+                        outputs=label.strip(),
+                        split="test",
+                        idx=str(global_idx),
+                    )
+                )
+                global_idx += 1
+                sizes["test"] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_conala_sum(data_dir):
+    pass
+
+
+def read_conala_gen(data_dir):
+    pass

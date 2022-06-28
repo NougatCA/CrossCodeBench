@@ -17,7 +17,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "sevc_pointer"
+            "buffer_overrun"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -29,16 +29,16 @@ def create_meta_data(instances, sizes):
             "Binary"
         ],
         "BibTex": [
-            """@article{li2021sysevr,
-  title={Sysevr: A framework for using deep learning to detect software vulnerabilities},
-  author={Li, Zhen and Zou, Deqing and Xu, Shouhuai and Jin, Hai and Zhu, Yawei and Chen, Zhaoxuan},
-  journal={IEEE Transactions on Dependable and Secure Computing},
-  year={2021},
-  publisher={IEEE}
+            """@inproceedings{choi2017end,
+  title={End-to-end prediction of buffer overruns from raw source code via neural memory networks},
+  author={Choi, Min-Je and Jeong, Sehun and Oh, Hakjoo and Choo, Jaegul},
+  booktitle={Proceedings of the 26th International Joint Conference on Artificial Intelligence},
+  pages={1546--1553},
+  year={2017}
 }"""
         ],
         "URL": [
-            "https://github.com/SySeVR/SySeVR",
+            "https://github.com/mjc92/buffer_overrun_memory_networks",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -48,7 +48,7 @@ def create_meta_data(instances, sizes):
         # Named Entity Recognition -> Type Prediction
         # Summarization
         "Categories": [
-            "Detection -> Defect Detection -> Pointer Vulnerability"
+            "Detection -> Defect Detection -> Buffer Overrun"
         ],
         # code defect
         # code semantic similarity
@@ -63,9 +63,8 @@ def create_meta_data(instances, sizes):
             "Detect defect"
         ],
         "Definition": [
-            "Given a source code slice written in C/C++, "
-            "your task is to distinguish whether it contains any vulnerability "
-            "that is related to wrong pointer usages. "
+            "Given a function written in C/C++, "
+            "this task is to detect whether it may produce buffer overruns. "
             "Output 'Yes' if so, otherwise output 'No'."
         ],
         "Input_language": [
@@ -88,7 +87,7 @@ def create_meta_data(instances, sizes):
         # Buffer
         # API
         "Domains": [
-            "Pointer"
+            "Software system security"
         ],
         "Instance_number": [
             sizes
@@ -156,7 +155,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_sevc(data_dir, subset="pointer")
+    instances, sizes = read_buffer_overrun(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
