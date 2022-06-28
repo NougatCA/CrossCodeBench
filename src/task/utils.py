@@ -956,3 +956,210 @@ def read_many_types_4_typescript(data_dir):
     assert sum(sizes.values()) == len(instances)
     sizes["total"] = len(instances)
     return instances, sizes
+
+
+def read_codexglue_method_generation(data_dir):
+    data_dir = os.path.join(data_dir, "codexglue_method_generation")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, total=len(lines), desc=f"Loading {split} data")):
+            js = json.loads(line.strip())
+            sign = js["signature"]
+            nl = js["docstring"]
+            target = js["body"]
+            instances.append(
+                DataInstance(
+                    inputs=[sign, nl],
+                    outputs=target,
+                    split=split,
+                    idx=js["id"]
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_hybrid_deep_com(data_dir):
+    data_dir = os.path.join(data_dir, "hybrid_deep_com")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.token.code"), mode="r", encoding="utf-8") as src_f, \
+                open(os.path.join(data_dir, f"{split}.token.nl"), mode="r", encoding="utf-8") as tgt_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+        assert len(sources) == len(targets)
+        for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
+            source = " ".join(source.strip().split())
+            target = " ".join(target.strip().split())
+            instances.append(
+                DataInstance(
+                    inputs=source,
+                    outputs=target,
+                    split=split,
+                    idx=str(idx)
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_codenn(data_dir, subset):
+    assert subset in ["csharp", "python"]
+    data_dir = os.path.join(data_dir, "codenn", subset)
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.txt"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, total=len(lines), desc=f"Loading {split} data")):
+            _, idx, nl, code, _ = line.strip().split("\t")
+            instances.append(
+                DataInstance(
+                    inputs=code,
+                    outputs=nl,
+                    split=split,
+                    idx=idx
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_code_qa(data_dir, subset):
+    assert subset in ["java", "python"]
+    data_dir = os.path.join(data_dir, "code_qa", subset)
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.code.original"), mode="r", encoding="utf-8") as code_f, \
+             open(os.path.join(data_dir, f"{split}.question"), mode="r", encoding="utf-8") as q_f, \
+             open(os.path.join(data_dir, f"{split}.answer"), mode="r", encoding="utf-8") as a_f:
+            codes = code_f.readlines()
+            questions = q_f.readlines()
+            answers = a_f.readlines()
+        assert len(codes) == len(questions) == len(answers)
+        for idx, (code, q, a) in enumerate(tqdm(zip(codes, questions, answers), desc="Reading", total=len(codes))):
+            instances.append(
+                DataInstance(
+                    inputs=[code.strip(), q.strip()],
+                    outputs=a.strip(),
+                    split=split,
+                    idx=str(idx)
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_d2a(data_dir):
+    import csv
+    data_dir = os.path.join(data_dir, "d2a")
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+    }
+    for split in ["train", "valid"]:
+        with open(os.path.join(data_dir, f"{split}.csv"), mode="r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                instances.append(
+                    DataInstance(
+                        inputs=row["code"].strip(),
+                        outputs="Yes" if row["label"] == "1" else "No",
+                        split=split,
+                        idx=row["id"]
+                    )
+                )
+                sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_code_gadget_database(data_dir, subset):
+    assert subset in ["buffer", "resource"]
+    data_dir = os.path.join(data_dir, "code_gadget_database")
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    with open(os.path.join(data_dir, "cwe{}_cgd.txt".format("119" if subset == "buffer" else "399")), mode="r", encoding="utf-8") as f:
+        examples = f.read().strip().split("---------------------------------")
+        for example in examples:
+            lines = example.strip().split("\n")
+            if len(lines) < 3:
+                continue
+            title = "#".join(lines[0].strip().split())
+            label = "Yes" if lines[-1].strip() == "1" else "No"
+            code = "\n".join(lines[1:-1]).strip()
+            instances.append(
+                DataInstance(
+                    inputs=code,
+                    outputs=label,
+                    split="",
+                    idx=title
+                )
+            )
+            sizes["total"] += 1
+    return instances, sizes
+
+
+def read_sevc(data_dir, subset):
+    assert subset in ["api", "arithmetic", "array", "pointer"]
+    data_dir = os.path.join(data_dir, "sevc")
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    with open(os.path.join(data_dir, f"{subset}.txt"), mode="r", encoding="utf-8") as f:
+        examples = f.read().strip().split("------------------------------")
+        for example in examples:
+            lines = example.strip().split("\n")
+            if len(lines) < 3:
+                continue
+            title = "#".join(lines[0].strip().split())
+            label = "Yes" if lines[-1].strip() == "1" else "No"
+            code = "\n".join(lines[1:-1]).strip()
+            instances.append(
+                DataInstance(
+                    inputs=code,
+                    outputs=label,
+                    split="",
+                    idx=title
+                )
+            )
+            sizes["total"] += 1
+    return instances, sizes

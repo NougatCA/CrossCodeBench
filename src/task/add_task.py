@@ -17,7 +17,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "many_types_4_typescript"
+            "sevc_pointer"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -25,21 +25,20 @@ def create_meta_data(instances, sizes):
         # Summarization
         # Tagging
         "Type": [
-            "Tagging"
+            "Classification",
+            "Binary"
         ],
         "BibTex": [
-            """@INPROCEEDINGS{9796285,
-  author={Jesse, Kevin and Devanbu, Premkumar T.},
-  booktitle={2022 IEEE/ACM 19th International Conference on Mining Software Repositories (MSR)}, 
-  title={ManyTypes4TypeScript: A Comprehensive TypeScript Dataset for Sequence-Based Type Inference}, 
-  year={2022},
-  volume={},
-  number={},
-  pages={294-298},
-  doi={10.1145/3524842.3528507}}"""
+            """@article{li2021sysevr,
+  title={Sysevr: A framework for using deep learning to detect software vulnerabilities},
+  author={Li, Zhen and Zou, Deqing and Xu, Shouhuai and Jin, Hai and Zhu, Yawei and Chen, Zhaoxuan},
+  journal={IEEE Transactions on Dependable and Secure Computing},
+  year={2021},
+  publisher={IEEE}
+}"""
         ],
         "URL": [
-            "https://github.com/microsoft/CodeXGLUE/tree/main/Code-Code/TypePrediction-TypeScript",
+            "https://github.com/SySeVR/SySeVR",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -47,8 +46,9 @@ def create_meta_data(instances, sizes):
         # Translation
         # Code Modification -> Bug Fixing
         # Named Entity Recognition -> Type Prediction
+        # Summarization
         "Categories": [
-            "Named Entity Recognition -> Type Prediction"
+            "Detection -> Defect Detection -> Pointer Vulnerability"
         ],
         # code defect
         # code semantic similarity
@@ -57,21 +57,22 @@ def create_meta_data(instances, sizes):
         # natural language and code semantic similarity
         # variable type
         "Reasoning": [
-            "Reasoning on variable type"
+            "Reasoning on code defect"
         ],
         "Prompt": [
-            ""
+            "Detect defect"
         ],
         "Definition": [
-            "Given a sequence of source code, the task is to predict the correct type "
-            "for a particular variable, parameter, or function. "
-            "Generate the variables to be predicted and their corresponding types, separated by colons."
+            "Given a source code slice written in C/C++, "
+            "your task is to distinguish whether it contains any vulnerability "
+            "that is related to wrong pointer usages. "
+            "Output 'Yes' if so, otherwise output 'No'."
         ],
         "Input_language": [
-            "Programming Language -> TypeScript"
+            "Programming Language -> C/C++"
         ],
         "Output_language": [
-            "Programming Language -> TypeScript -> Variable: Type"
+            "Natural Language -> English"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -84,8 +85,10 @@ def create_meta_data(instances, sizes):
         # Operator
         # Bug
         # Code
+        # Buffer
+        # API
         "Domains": [
-            "Variable"
+            "Pointer"
         ],
         "Instance_number": [
             sizes
@@ -153,7 +156,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_many_types_4_typescript(data_dir)
+    instances, sizes = read_sevc(data_dir, subset="pointer")
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
