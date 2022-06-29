@@ -1278,9 +1278,268 @@ def read_buffer_overrun(data_dir):
     return instances, sizes
 
 
-def read_conala_sum(data_dir):
-    pass
+def read_conala(data_dir, mode):
+    assert mode in ["sum", "gen"]
+    data_dir = os.path.join(data_dir, "conala")
+    instances = []
+    sizes = {
+        "train": 0,
+        "test": 0,
+        "mined": 0
+    }
+    q_id_to_rewritten_intent = {}
+    for split in ["train", "test"]:
+        with open(os.path.join(data_dir, f"conala-{split}.json"), mode="r", encoding="utf-8") as f:
+            data = json.load(f)
+        for item in data:
+            q_id = item["question_id"]
+            code = item["snippet"].strip()
+            if item["rewritten_intent"] == None:
+                if q_id in q_id_to_rewritten_intent:
+                    nl = q_id_to_rewritten_intent[q_id]
+                else:
+                    nl = item["intent"]
+            else:
+                nl = item["rewritten_intent"].strip()
+                q_id_to_rewritten_intent[q_id] = nl
+            instances.append(
+                DataInstance(
+                    inputs=code if mode == "sum" else nl,
+                    outputs=nl if mode == "sum" else code,
+                    split=split,
+                    idx=f"{q_id}"
+                )
+            )
+            sizes[split] += 1
+    with open(os.path.join(data_dir, f"conala-mined.jsonl"), mode="r", encoding="utf-8") as f:
+        lines = f.readlines()
+    for line in lines:
+        js = json.loads(line.strip())
+        code = js["snippet"].strip()
+        nl = js["intent"].strip()
+        instances.append(
+            DataInstance(
+                inputs=code if mode == "sum" else nl,
+                outputs=nl if mode == "sum" else code,
+                split="mined",
+                idx=js["id"]
+            )
+        )
+        sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
 
 
-def read_conala_gen(data_dir):
-    pass
+def read_xlcost_translate(data_dir, source_lang, target_lang, mode):
+    assert source_lang in ["C++", "C", "Javascript", "PHP", "Python", "C#", "Java"]
+    assert target_lang in ["C++", "C", "Javascript", "PHP", "Python", "C#", "Java"]
+    assert mode in ["snippet", "program"]
+
+    def parse_code(s):
+        s = s.strip()
+        s = s.replace("NEWLINE", "\n")
+        s = s.replace("NEW_LINE", "\n")
+        s = s.replace("INDENT", "\t")
+        return s.strip()
+
+    extension_map = {
+        "C++": "cpp",
+        "C": "c",
+        "Javascript": "js",
+        "PHP": "php",
+        "Python": "py",
+        "C#": "cs",
+        "Java": "java"
+    }
+    source_ext = extension_map[source_lang]
+    target_ext = extension_map[target_lang]
+
+    data_dir = os.path.join(data_dir,
+                            "xlcost",
+                            "generation",
+                            "pair_data_tok_{}".format("1" if mode == "snippet" else "full"))
+    if os.path.exists(os.path.join(data_dir, f"{source_lang}-{target_lang}")):
+        task_name = f"{source_lang}-{target_lang}"
+    else:
+        task_name = f"{target_lang}-{source_lang}"
+    data_dir = os.path.join(data_dir, task_name)
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0,
+    }
+
+    for split, split_name in zip(["train", "valid", "test"], ["train", "val", "test"]):
+        with open(os.path.join(data_dir, f"{split_name}-{task_name}-tok.{source_ext}"),
+                  mode="r", encoding="utf-8") as src_f, \
+             open(os.path.join(data_dir, f"{split_name}-{task_name}-tok.{target_ext}"),
+                  mode="r", encoding="utf-8") as tgt_f, \
+             open(os.path.join(data_dir, f"{split_name}-{source_lang}-map.jsonl"),
+                  mode="r", encoding="utf-8") as src_idx_f, \
+             open(os.path.join(data_dir, f"{split_name}-{target_lang}-map.jsonl"),
+                  mode="r", encoding="utf-8") as tgt_idx_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+            source_indices = src_idx_f.readlines()
+            target_indices = tgt_idx_f.readlines()
+        assert len(sources) == len(targets) == len(source_indices) == len(target_indices)
+        for source, target, src_idx, tgt_idx in zip(sources, targets, source_indices, target_indices):
+            source = parse_code(source)
+            target = parse_code(target)
+            instances.append(
+                DataInstance(
+                    inputs=source,
+                    outputs=target,
+                    split=split,
+                    idx=f"{src_idx}#{tgt_idx}"
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_xlcost_summarization(data_dir, source_lang, mode):
+    assert source_lang in ["C++", "C", "Javascript", "PHP", "Python", "C#", "Java"]
+    assert mode in ["snippet", "program"]
+
+    target_lang = "comment" if mode == "snippet" else "desc"
+
+    def parse_code(s):
+        s = s.strip()
+        s = s.replace("NEWLINE", "\n")
+        s = s.replace("NEW_LINE", "\n")
+        s = s.replace("INDENT", "\t")
+        return s.strip()
+
+    extension_map = {
+        "C++": "cpp",
+        "C": "c",
+        "Javascript": "js",
+        "PHP": "php",
+        "Python": "py",
+        "C#": "cs",
+        "Java": "java"
+    }
+    source_ext = extension_map[source_lang]
+    target_ext = "txt"
+
+    data_dir = os.path.join(data_dir,
+                            "xlcost",
+                            "generation",
+                            "pair_data_tok_{}_{}".format("1" if mode == "snippet" else "full", target_lang))
+    task_name = f"{source_lang}-{target_lang}"
+    data_dir = os.path.join(data_dir, task_name)
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0,
+    }
+
+    for split, split_name in zip(["train", "valid", "test"], ["train", "val", "test"]):
+        with open(os.path.join(data_dir, f"{split_name}-{task_name}-tok.{source_ext}"),
+                  mode="r", encoding="utf-8") as src_f, \
+                open(os.path.join(data_dir, f"{split_name}-{task_name}-tok.{target_ext}"),
+                     mode="r", encoding="utf-8") as tgt_f, \
+                open(os.path.join(data_dir, f"{split_name}-{source_lang}-map.jsonl"),
+                     mode="r", encoding="utf-8") as src_idx_f, \
+                open(os.path.join(data_dir, f"{split_name}-{target_lang}-map.jsonl"),
+                     mode="r", encoding="utf-8") as tgt_idx_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+            source_indices = src_idx_f.readlines()
+            target_indices = tgt_idx_f.readlines()
+        assert len(sources) == len(targets) == len(source_indices) == len(target_indices)
+        for source, target, src_idx, tgt_idx in zip(sources, targets, source_indices, target_indices):
+            assert src_idx == tgt_idx
+            source = parse_code(source)
+            target = target.strip()
+            instances.append(
+                DataInstance(
+                    inputs=source,
+                    outputs=target,
+                    split=split,
+                    idx=f"{src_idx}"
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_xlcost_gen(data_dir, source_lang, mode):
+    assert source_lang in ["C++", "C", "Javascript", "PHP", "Python", "C#", "Java"]
+    assert mode in ["snippet", "program"]
+
+    target_lang = "comment" if mode == "snippet" else "desc"
+
+    def parse_code(s):
+        s = s.strip()
+        s = s.replace("NEWLINE", "\n")
+        s = s.replace("NEW_LINE", "\n")
+        s = s.replace("INDENT", "\t")
+        return s.strip()
+
+    extension_map = {
+        "C++": "cpp",
+        "C": "c",
+        "Javascript": "js",
+        "PHP": "php",
+        "Python": "py",
+        "C#": "cs",
+        "Java": "java"
+    }
+    source_ext = extension_map[source_lang]
+    target_ext = "txt"
+
+    data_dir = os.path.join(data_dir,
+                            "xlcost",
+                            "generation",
+                            "pair_data_tok_{}".format("1_comment" if mode == "snippet" else "full_desc_comment"))
+    task_name = f"{source_lang}-{target_lang}"
+    data_dir = os.path.join(data_dir, task_name)
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0,
+    }
+
+    for split, split_name in zip(["train", "valid", "test"], ["train", "val", "test"]):
+        with open(os.path.join(data_dir, f"{split_name}-{task_name}-tok.{source_ext}"),
+                  mode="r", encoding="utf-8") as src_f, \
+                open(os.path.join(data_dir, f"{split_name}-{task_name}-tok.{target_ext}"),
+                     mode="r", encoding="utf-8") as tgt_f, \
+                open(os.path.join(data_dir, f"{split_name}-{source_lang}-map.jsonl"),
+                     mode="r", encoding="utf-8") as src_idx_f, \
+                open(os.path.join(data_dir, f"{split_name}-{target_lang}-map.jsonl"),
+                     mode="r", encoding="utf-8") as tgt_idx_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+            source_indices = src_idx_f.readlines()
+            target_indices = tgt_idx_f.readlines()
+        assert len(sources) == len(targets) == len(source_indices) == len(target_indices)
+        for source, target, src_idx, tgt_idx in zip(sources, targets, source_indices, target_indices):
+            assert src_idx == tgt_idx
+            source = parse_code(source)
+            target = target.strip()
+            instances.append(
+                DataInstance(
+                    inputs=target,
+                    outputs=source,
+                    split=split,
+                    idx=f"{src_idx}"
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes

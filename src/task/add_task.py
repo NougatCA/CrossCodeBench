@@ -3,7 +3,27 @@ import re
 from utils import *
 
 
-def create_meta_data(instances, sizes):
+def create_meta_data(instances, sizes, lang):
+
+    def get_lang_names(lang):
+        if lang == "C++":
+            return "cpp", "C++"
+        elif lang == "Java":
+            return "java", "Java"
+        elif lang == "Python":
+            return "python", "Python"
+        elif lang == "C#":
+            return "cs", "C#"
+        elif lang == "Javascript":
+            return "js", "JavaScript"
+        elif lang == "PHP":
+            return "php", "PHP"
+        elif lang == "C":
+            return "c", "C"
+        else:
+            raise ValueError
+
+    lang_short, lang_formal = get_lang_names(lang)
 
     meta = {
         # "Prompt Name": [
@@ -17,7 +37,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "buffer_overrun"
+            f"xlcost_gen_function_{lang_short}"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -25,20 +45,18 @@ def create_meta_data(instances, sizes):
         # Summarization
         # Tagging
         "Type": [
-            "Classification",
-            "Binary"
+            "Generation",
         ],
         "BibTex": [
-            """@inproceedings{choi2017end,
-  title={End-to-end prediction of buffer overruns from raw source code via neural memory networks},
-  author={Choi, Min-Je and Jeong, Sehun and Oh, Hakjoo and Choo, Jaegul},
-  booktitle={Proceedings of the 26th International Joint Conference on Artificial Intelligence},
-  pages={1546--1553},
-  year={2017}
+            """@article{zhu2022xlcost,
+  title={XLCoST: A Benchmark Dataset for Cross-lingual Code Intelligence},
+  author={Zhu, Ming and Jain, Aneesh and Suresh, Karthik and Ravindran, Roshan and Tipirneni, Sindhu and Reddy, Chandan K},
+  journal={arXiv preprint arXiv:2206.08474},
+  year={2022}
 }"""
         ],
         "URL": [
-            "https://github.com/mjc92/buffer_overrun_memory_networks",
+            "https://github.com/reddy-lab-code-research/XLCoST",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -48,7 +66,7 @@ def create_meta_data(instances, sizes):
         # Named Entity Recognition -> Type Prediction
         # Summarization
         "Categories": [
-            "Detection -> Defect Detection -> Buffer Overrun"
+            "Code Generation"
         ],
         # code defect
         # code semantic similarity
@@ -57,21 +75,19 @@ def create_meta_data(instances, sizes):
         # natural language and code semantic similarity
         # variable type
         "Reasoning": [
-            "Reasoning on code defect"
+            "Reasoning on natural language functionality"
         ],
         "Prompt": [
-            "Detect defect"
+            f"Generation {lang_formal}"
         ],
         "Definition": [
-            "Given a function written in C/C++, "
-            "this task is to detect whether it may produce buffer overruns. "
-            "Output 'Yes' if so, otherwise output 'No'."
+            f"Given a text input, this task focuses on generating its corresponding {lang_formal} function."
         ],
         "Input_language": [
-            "Programming Language -> C/C++"
+            "Natural Language -> English"
         ],
         "Output_language": [
-            "Natural Language -> English"
+            f"Programming Language -> {lang_formal}"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -87,7 +103,7 @@ def create_meta_data(instances, sizes):
         # Buffer
         # API
         "Domains": [
-            "Software system security"
+            "Code"
         ],
         "Instance_number": [
             sizes
@@ -148,17 +164,23 @@ def write_task(meta, data, task_dir):
 
     num_instance = meta["Instance_number"][0]["total"]
     print(f"{num_instance} instances dumped to {data_path}")
+    print("Split:")
+    for k, v in meta["Instance_number"][0].items():
+        print(f"{k}: {v}")
 
 
-def main():
+def main(lang):
 
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_buffer_overrun(data_dir)
-    meta, data = create_meta_data(instances, sizes)
+    instances, sizes = read_xlcost_gen(data_dir,
+                                       source_lang=lang,
+                                       mode="program")
+    meta, data = create_meta_data(instances, sizes, lang=lang)
     write_task(meta, data, task_dir)
 
 
 if __name__ == "__main__":
-    main()
+    for source_lang in ["C++", "Java", "Python", "C#", "Javascript", "PHP", "C"]:
+        main(lang=source_lang)
