@@ -78,7 +78,7 @@ def create_meta_data(instances, sizes, lang):
             "Reasoning on natural language functionality"
         ],
         "Prompt": [
-            f"Generation {lang_formal}"
+            f"Generate {lang_formal}"
         ],
         "Definition": [
             f"Given a text input, this task focuses on generating its corresponding {lang_formal} function."
