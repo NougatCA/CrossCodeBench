@@ -1543,3 +1543,99 @@ def read_xlcost_gen(data_dir, source_lang, mode):
     assert sum(sizes.values()) == len(instances)
     sizes["total"] = len(instances)
     return instances, sizes
+
+
+def read_avatar(data_dir, source_lang, target_lang):
+    assert source_lang in ["java", "python"]
+    assert target_lang in ["java", "python"]
+    data_dir = os.path.join(data_dir, "avatar")
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.java-python.{source_lang}"), mode="r", encoding="utf-8") as src_f, \
+             open(os.path.join(data_dir, f"{split}.java-python.{target_lang}"), mode="r", encoding="utf-8") as tgt_f, \
+             open(os.path.join(data_dir, f"{split}.java-python.id"), mode="r", encoding="utf-8") as idx_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+            indices = idx_f.readlines()
+        assert len(sources) == len(targets) == len(indices)
+        for source, target, idx in zip(sources, targets, indices):
+            instances.append(
+                DataInstance(
+                    inputs=source.strip(),
+                    outputs=target.strip(),
+                    split=split,
+                    idx=idx.strip()
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_many_types_4_py(data_dir):
+
+    def convert_target(tokens: str, types: str):
+        tokens = tokens.strip().split()
+        types = types.strip().split()
+        if len(tokens) != len(types):
+            return None
+        results = [f"{token}: {label}" for token, label in zip(tokens, types) if label != "0"]
+        if len(results) == 0:
+            results.append("None")
+        return results
+
+    data_dir = os.path.join(data_dir, "many_types_4_py")
+
+    file_to_split = {}
+    with open(os.path.join(data_dir, f"dataset_split.csv"), mode="r", encoding="utf-8") as f:
+        for line in f.readlines():
+            split, file = line.strip().split(",", 1)
+            split = split.strip()
+            file = file.strip().strip("\"")
+            assert split in ["train", "valid", "test"]
+            file_to_split[file] = split
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    data_dir = os.path.join(data_dir, "processed_projects_clean")
+    for filename in os.listdir(data_dir):
+        file_path = os.path.join(data_dir, filename)
+        if filename.endswith(".json") and os.path.isfile(file_path):
+            with open(file_path, mode="r", encoding="utf-8") as f:
+                js = json.load(f)
+                for _, repo_data in js.items():
+                    src_files_dict = repo_data["src_files"]
+                    for file, data in src_files_dict.items():
+                        source = data["untyped_seq"]
+                        if len(source) == 0:
+                            continue
+                        target = convert_target(source, data["typed_seq"])
+                        if target is None or (len(target) == 1 and target[0] == "None"):
+                            continue
+                        source = source.replace("[EOL]", "\n")
+                        if file == "repos/yannhyu/breadnbutter/SOAP_WS/suds-jurko-0.6/\ntest_with_sample_cases.py":
+                            split = "train"
+                        else:
+                            split = file_to_split[file]
+                        instances.append(
+                            DataInstance(
+                                inputs=source,
+                                outputs=target,
+                                split=split,
+                                idx=file
+                            )
+                        )
+                        sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes

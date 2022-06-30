@@ -3,27 +3,7 @@ import re
 from utils import *
 
 
-def create_meta_data(instances, sizes, lang):
-
-    def get_lang_names(lang):
-        if lang == "C++":
-            return "cpp", "C++"
-        elif lang == "Java":
-            return "java", "Java"
-        elif lang == "Python":
-            return "python", "Python"
-        elif lang == "C#":
-            return "cs", "C#"
-        elif lang == "Javascript":
-            return "js", "JavaScript"
-        elif lang == "PHP":
-            return "php", "PHP"
-        elif lang == "C":
-            return "c", "C"
-        else:
-            raise ValueError
-
-    lang_short, lang_formal = get_lang_names(lang)
+def create_meta_data(instances, sizes):
 
     meta = {
         # "Prompt Name": [
@@ -37,7 +17,7 @@ def create_meta_data(instances, sizes, lang):
         ],
         # dataset, task name
         "Source": [
-            f"xlcost_gen_function_{lang_short}"
+            "many_types_4_py"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -45,18 +25,20 @@ def create_meta_data(instances, sizes, lang):
         # Summarization
         # Tagging
         "Type": [
-            "Generation",
+            "Tagging",
         ],
         "BibTex": [
-            """@article{zhu2022xlcost,
-  title={XLCoST: A Benchmark Dataset for Cross-lingual Code Intelligence},
-  author={Zhu, Ming and Jain, Aneesh and Suresh, Karthik and Ravindran, Roshan and Tipirneni, Sindhu and Reddy, Chandan K},
-  journal={arXiv preprint arXiv:2206.08474},
-  year={2022}
+            """@inproceedings{mir2021manytypes4py,
+  title={ManyTypes4Py: A benchmark python dataset for machine learning-based type inference},
+  author={Mir, Amir M and Lato{\v{s}}kinas, Evaldas and Gousios, Georgios},
+  booktitle={2021 IEEE/ACM 18th International Conference on Mining Software Repositories (MSR)},
+  pages={585--589},
+  year={2021},
+  organization={IEEE}
 }"""
         ],
         "URL": [
-            "https://github.com/reddy-lab-code-research/XLCoST",
+            "https://github.com/saltudelft/many-types-4-py-dataset",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -66,7 +48,7 @@ def create_meta_data(instances, sizes, lang):
         # Named Entity Recognition -> Type Prediction
         # Summarization
         "Categories": [
-            "Code Generation"
+            "Named Entity Recognition -> Type Prediction"
         ],
         # code defect
         # code semantic similarity
@@ -75,19 +57,20 @@ def create_meta_data(instances, sizes, lang):
         # natural language and code semantic similarity
         # variable type
         "Reasoning": [
-            "Reasoning on natural language functionality"
+            "Reasoning on variable type"
         ],
         "Prompt": [
-            f"Generate {lang_formal}"
+            "Tag variable type"
         ],
         "Definition": [
-            f"Given a text input, this task focuses on generating its corresponding {lang_formal} function."
+            "Given a Python file sequence, your task is to predict the correct type for all variables, parameters, or functions. "
+            "Generate the variables to be predicted and their corresponding types, separated by colons."
         ],
         "Input_language": [
-            "Natural Language -> English"
+            "Programming Language -> Python"
         ],
         "Output_language": [
-            f"Programming Language -> {lang_formal}"
+            "Programming Language -> Python -> Variable: Type"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -169,18 +152,15 @@ def write_task(meta, data, task_dir):
         print(f"{k}: {v}")
 
 
-def main(lang):
+def main():
 
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_xlcost_gen(data_dir,
-                                       source_lang=lang,
-                                       mode="program")
-    meta, data = create_meta_data(instances, sizes, lang=lang)
+    instances, sizes = read_many_types_4_py(data_dir)
+    meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
 
 if __name__ == "__main__":
-    for source_lang in ["C++", "Java", "Python", "C#", "Javascript", "PHP", "C"]:
-        main(lang=source_lang)
+    main()
