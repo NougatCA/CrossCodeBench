@@ -1671,3 +1671,38 @@ def read_commit_gen(data_dir):
     assert sum(sizes.values()) == len(instances)
     sizes["total"] = len(instances)
     return instances, sizes
+
+
+def read_comment_cls(data_dir, source):
+    assert source in ["code", "comment"]    # code -> cls, or comment -> cls
+    from openpyxl import load_workbook
+
+    data_dir = os.path.join(data_dir, "comment_cls")
+
+    instances = []
+    sizes = {
+        "total": 0
+    }
+
+    wb = load_workbook(os.path.join(data_dir, "data_set.xlsx"))
+    sheet = wb.worksheets[0]
+    for row in sheet.rows:
+
+
+
+    global_idx = 0
+    with open(os.path.join(data_dir, f"data_set"), mode="r", encoding="utf-8") as f:
+
+        instances.append(
+            DataInstance(
+                inputs=source.strip(),
+                outputs=target.strip(),
+                split=split,
+                idx=str(global_idx)
+            )
+        )
+        sizes[split] += 1
+        global_idx += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
