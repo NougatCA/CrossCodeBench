@@ -1639,3 +1639,35 @@ def read_many_types_4_py(data_dir):
     assert sum(sizes.values()) == len(instances)
     sizes["total"] = len(instances)
     return instances, sizes
+
+
+def read_commit_gen(data_dir):
+    data_dir = os.path.join(data_dir, "commit_gen")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    global_idx = 0
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"cleaned.{split}.diff"), mode="r", encoding="utf-8") as src_f, \
+             open(os.path.join(data_dir, f"cleaned.{split}.msg"), mode="r", encoding="utf-8") as tgt_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+        assert len(sources) == len(targets)
+        for source, target in tqdm(zip(sources, targets), desc="Reading", total=len(sources)):
+            instances.append(
+                DataInstance(
+                    inputs=source.strip(),
+                    outputs=target.strip(),
+                    split=split,
+                    idx=str(global_idx)
+                )
+            )
+            sizes[split] += 1
+            global_idx += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes

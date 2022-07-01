@@ -17,7 +17,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "many_types_4_py"
+            "commit_gen"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -28,17 +28,23 @@ def create_meta_data(instances, sizes):
             "Tagging",
         ],
         "BibTex": [
-            """@inproceedings{mir2021manytypes4py,
-  title={ManyTypes4Py: A benchmark python dataset for machine learning-based type inference},
-  author={Mir, Amir M and Lato{\v{s}}kinas, Evaldas and Gousios, Georgios},
-  booktitle={2021 IEEE/ACM 18th International Conference on Mining Software Repositories (MSR)},
-  pages={585--589},
-  year={2021},
+            """@inproceedings{jiang2017automatically,
+  title={Automatically generating commit messages from diffs using neural machine translation},
+  author={Jiang, Siyuan and Armaly, Ameer and McMillan, Collin},
+  booktitle={2017 32nd IEEE/ACM International Conference on Automated Software Engineering (ASE)},
+  pages={135--146},
   organization={IEEE}
+}""",
+            """@inproceedings{liu2018neural,
+  title={Neural-machine-translation-based commit message generation: how far are we?},
+  author={Liu, Zhongxin and Xia, Xin and Hassan, Ahmed E and Lo, David and Xing, Zhenchang and Wang, Xinyu},
+  booktitle={Proceedings of the 33rd ACM/IEEE International Conference on Automated Software Engineering},
+  pages={373--384},
+  year={2018}
 }"""
         ],
         "URL": [
-            "https://github.com/saltudelft/many-types-4-py-dataset",
+            "https://goo.gl/63B976",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -47,8 +53,9 @@ def create_meta_data(instances, sizes):
         # Code Modification -> Bug Fixing
         # Named Entity Recognition -> Type Prediction
         # Summarization
+        # Generation -> Commit Message
         "Categories": [
-            "Named Entity Recognition -> Type Prediction"
+            "Generation -> Commit Message"
         ],
         # code defect
         # code semantic similarity
@@ -57,20 +64,21 @@ def create_meta_data(instances, sizes):
         # natural language and code semantic similarity
         # variable type
         "Reasoning": [
-            "Reasoning on variable type"
+            "Reasoning on change diff"
         ],
         "Prompt": [
-            "Tag variable type"
+            "Generate commit message"
         ],
         "Definition": [
-            "Given a Python file sequence, your task is to predict the correct type for all variables, parameters, or functions. "
-            "Generate the variables to be predicted and their corresponding types, separated by colons."
+            "Given a change diff which captures the difference between two program versions, "
+            "this task is to automatically generate a commit message, which is a textual description of the given diff, "
+            "and can be also seen as the documentation of software changes."
         ],
         "Input_language": [
-            "Programming Language -> Python"
+            "Programming Language -> Change Diff"
         ],
         "Output_language": [
-            "Programming Language -> Python -> Variable: Type"
+            "Natural Language -> English"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -85,8 +93,9 @@ def create_meta_data(instances, sizes):
         # Code
         # Buffer
         # API
+        # Commit message
         "Domains": [
-            "Code"
+            "Commit message"
         ],
         "Instance_number": [
             sizes
@@ -157,7 +166,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_many_types_4_py(data_dir)
+    instances, sizes = read_commit_gen(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
