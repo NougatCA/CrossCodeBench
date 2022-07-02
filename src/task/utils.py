@@ -1022,7 +1022,7 @@ def read_hybrid_deep_com(data_dir):
 
 
 def read_codenn(data_dir, subset):
-    assert subset in ["csharp", "python"]
+    assert subset in ["csharp", "python", "sql"]
     data_dir = os.path.join(data_dir, "codenn", subset)
 
     instances = []
@@ -1673,8 +1673,7 @@ def read_commit_gen(data_dir):
     return instances, sizes
 
 
-def read_comment_cls(data_dir, source):
-    assert source in ["code", "comment"]    # code -> cls, or comment -> cls
+def read_code_comment_cls(data_dir):
     from openpyxl import load_workbook
 
     data_dir = os.path.join(data_dir, "comment_cls")
@@ -1686,23 +1685,113 @@ def read_comment_cls(data_dir, source):
 
     wb = load_workbook(os.path.join(data_dir, "data_set.xlsx"))
     sheet = wb.worksheets[0]
-    for row in sheet.rows:
+    rows = list(sheet.rows)
+    for idx, row in enumerate(rows[1:]):
+        code = row[0].value
+        nl = row[1].value
+        label = row[2].value
+        if code is None or nl is None or label is None:
+            continue
+        instances.append(
+            DataInstance(
+                inputs=[code.strip(), nl.strip()],
+                outputs=label.strip(),
+                split="",
+                idx=str(idx)
+            )
+        )
+        sizes["total"] += 1
+    return instances, sizes
 
 
+def read_comment_cls(data_dir):
+    from openpyxl import load_workbook
 
-    global_idx = 0
-    with open(os.path.join(data_dir, f"data_set"), mode="r", encoding="utf-8") as f:
+    data_dir = os.path.join(data_dir, "comment_cls")
 
+    instances = []
+    sizes = {
+        "total": 0
+    }
+
+    wb = load_workbook(os.path.join(data_dir, "data_set.xlsx"))
+    sheet = wb.worksheets[0]
+    rows = list(sheet.rows)
+    for idx, row in enumerate(rows[1:]):
+        nl = row[1].value
+        label = row[2].value
+        if nl is None or label is None:
+            continue
+        instances.append(
+            DataInstance(
+                inputs=nl.strip(),
+                outputs=label.strip(),
+                split="",
+                idx=str(idx)
+            )
+        )
+        sizes["total"] += 1
+    return instances, sizes
+
+
+def read_atom(data_dir):
+    import csv
+    csv.field_size_limit(500 * 1024 * 1024)
+
+    data_dir = os.path.join(data_dir, "atom")
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    for filename in os.listdir(data_dir):
+        file_path = os.path.join(data_dir, filename)
+        if filename.endswith(".csv") and os.path.isfile(file_path):
+            print(file_path)
+            with open(file_path, mode="r", encoding="utf-8") as f:
+                reader = csv.reader((line.replace('\0', '') for line in f), delimiter=",")
+                header = next(reader)
+                for row in reader:
+                    assert len(row) == 10
+                    diff = row[3]
+                    commit = row[1]
+                    project = row[9]
+                    commit_id = row[0]
+                    instances.append(
+                        DataInstance(
+                            inputs=diff.strip(),
+                            outputs=commit.strip(),
+                            split="",
+                            idx=f"{project}#{commit_id}"
+                        )
+                    )
+                    sizes["total"] += 1
+    return instances, sizes
+
+
+def read_pseudo_gen(data_dir, gen_type):
+    assert gen_type in ["code", "pseudo"]
+    source_ext = "anno" if gen_type == "code" else "code"
+    target_ext = "code" if gen_type == "code" else "anno"
+
+    data_dir = os.path.join(data_dir, "pseudo_gen")
+
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    with open(os.path.join(data_dir, f"all.{source_ext}"), mode="r", encoding="utf-8") as src_f, \
+         open(os.path.join(data_dir, f"all.{target_ext}"), mode="r", encoding="utf-8") as tgt_f:
+        sources = src_f.readlines()
+        targets = tgt_f.readlines()
+    assert len(sources) == len(targets)
+    for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
         instances.append(
             DataInstance(
                 inputs=source.strip(),
                 outputs=target.strip(),
-                split=split,
-                idx=str(global_idx)
+                split="",
+                idx=str(idx)
             )
         )
-        sizes[split] += 1
-        global_idx += 1
-    assert sum(sizes.values()) == len(instances)
-    sizes["total"] = len(instances)
+        sizes["total"] += 1
     return instances, sizes

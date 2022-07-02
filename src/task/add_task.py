@@ -17,7 +17,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "commit_gen"
+            "pseudo_source_gen"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -25,26 +25,21 @@ def create_meta_data(instances, sizes):
         # Summarization
         # Tagging
         "Type": [
-            "Tagging",
+            "Generation"
         ],
         "BibTex": [
-            """@inproceedings{jiang2017automatically,
-  title={Automatically generating commit messages from diffs using neural machine translation},
-  author={Jiang, Siyuan and Armaly, Ameer and McMillan, Collin},
-  booktitle={2017 32nd IEEE/ACM International Conference on Automated Software Engineering (ASE)},
-  pages={135--146},
-  organization={IEEE}
-}""",
-            """@inproceedings{liu2018neural,
-  title={Neural-machine-translation-based commit message generation: how far are we?},
-  author={Liu, Zhongxin and Xia, Xin and Hassan, Ahmed E and Lo, David and Xing, Zhenchang and Wang, Xinyu},
-  booktitle={Proceedings of the 33rd ACM/IEEE International Conference on Automated Software Engineering},
-  pages={373--384},
-  year={2018}
-}"""
+            """@INPROCEEDINGS{7372045,
+  author={Oda, Yusuke and Fudaba, Hiroyuki and Neubig, Graham and Hata, Hideaki and Sakti, Sakriani and Toda, Tomoki and Nakamura, Satoshi},
+  booktitle={2015 30th IEEE/ACM International Conference on Automated Software Engineering (ASE)}, 
+  title={Learning to Generate Pseudo-Code from Source Code Using Statistical Machine Translation}, 
+  year={2015},
+  volume={},
+  number={},
+  pages={574-584},
+  doi={10.1109/ASE.2015.36}}"""
         ],
         "URL": [
-            "https://goo.gl/63B976",
+            "https://github.com/delihiros/pseudogen",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -55,7 +50,7 @@ def create_meta_data(instances, sizes):
         # Summarization
         # Generation -> Commit Message
         "Categories": [
-            "Generation -> Commit Message"
+            "Code Generation"
         ],
         # code defect
         # code semantic similarity
@@ -64,21 +59,19 @@ def create_meta_data(instances, sizes):
         # natural language and code semantic similarity
         # variable type
         "Reasoning": [
-            "Reasoning on change diff"
+            "Reasoning on code semantic"
         ],
         "Prompt": [
-            "Generate commit message"
+            "Generate Python"
         ],
         "Definition": [
-            "Given a change diff which captures the difference between two program versions, "
-            "this task is to automatically generate a commit message, which is a textual description of the given diff, "
-            "and can be also seen as the documentation of software changes."
+            "Given a sentence of pseudo-code, your task is to generation the corresponding Python code statement."
         ],
         "Input_language": [
-            "Programming Language -> Change Diff"
+            "Programming Language -> Pseudo-Code"
         ],
         "Output_language": [
-            "Natural Language -> English"
+            "Programming Language -> Python"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -95,7 +88,7 @@ def create_meta_data(instances, sizes):
         # API
         # Commit message
         "Domains": [
-            "Commit message"
+            "Code"
         ],
         "Instance_number": [
             sizes
@@ -166,7 +159,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_commit_gen(data_dir)
+    instances, sizes = read_pseudo_gen(data_dir, gen_type="code")
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
