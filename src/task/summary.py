@@ -7,6 +7,8 @@ fields_to_summary = [
     "Contributors",
     "Source",
     "Type",
+    "Reasoning",
+    "Prompt",
     "Categories",
     "Definition",
     "Input_language",

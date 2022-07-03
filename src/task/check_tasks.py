@@ -10,6 +10,7 @@ fields_to_check = [
     "BibTex",
     "URL",
     "Reasoning",
+    "Prompt",
     "Categories",
     "Definition",
     "Input_language",
