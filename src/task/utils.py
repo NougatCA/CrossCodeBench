@@ -1795,3 +1795,86 @@ def read_pseudo_gen(data_dir, gen_type):
         )
         sizes["total"] += 1
     return instances, sizes
+
+
+def read_java_large_method_name(data_dir):
+    data_dir = os.path.join(data_dir, "java_large")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}_name.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, desc="Reading", total=len(lines))):
+            js = json.loads(line.strip())
+            code = js["code"].strip()
+            name = js["name"].strip()
+            instances.append(
+                DataInstance(
+                    inputs=code,
+                    outputs=name,
+                    split=split,
+                    idx=str(idx)
+                )
+            )
+            sizes[split] += 1
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_so_ds(data_dir):
+    data_dir = os.path.join(data_dir, "so_ds")
+
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    with open(os.path.join(data_dir, "so-ds-feb20.jsonl"), mode="r", encoding="utf-8") as f:
+        lines = f.readlines()
+    for idx, line in enumerate(tqdm(lines, desc="Reading", total=len(lines))):
+        js = json.loads(line.strip())
+        code = js["code"].strip()
+        desc = js["description"].strip()
+        idx = js["id"].strip()
+        instances.append(
+            DataInstance(
+                inputs=desc,
+                outputs=code,
+                split="",
+                idx=idx,
+            )
+        )
+        sizes["total"] += 1
+    assert sizes["total"] == len(instances)
+    return instances, sizes
+
+
+def read_ncs(data_dir):
+    data_dir = os.path.join(data_dir, "ncs")
+
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    with open(os.path.join(data_dir, "287_android_questions.json"), mode="r", encoding="utf-8") as f:
+        data = json.load(f)
+    for js in data:
+        desc = js["question"].strip()
+        code = js["answer"].strip()
+        idx = js["stackoverflow_id"].strip()
+        instances.append(
+            DataInstance(
+                inputs=desc,
+                outputs=code,
+                split="",
+                idx=idx,
+            )
+        )
+        sizes["total"] += 1
+    assert sizes["total"] == len(instances)
+    return instances, sizes
+

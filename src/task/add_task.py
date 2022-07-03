@@ -17,7 +17,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "pseudo_source_gen"
+            "ncs"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -28,18 +28,15 @@ def create_meta_data(instances, sizes):
             "Generation"
         ],
         "BibTex": [
-            """@INPROCEEDINGS{7372045,
-  author={Oda, Yusuke and Fudaba, Hiroyuki and Neubig, Graham and Hata, Hideaki and Sakti, Sakriani and Toda, Tomoki and Nakamura, Satoshi},
-  booktitle={2015 30th IEEE/ACM International Conference on Automated Software Engineering (ASE)}, 
-  title={Learning to Generate Pseudo-Code from Source Code Using Statistical Machine Translation}, 
-  year={2015},
-  volume={},
-  number={},
-  pages={574-584},
-  doi={10.1109/ASE.2015.36}}"""
+            """@article{li2019neural,
+  title={Neural code search evaluation dataset},
+  author={Li, Hongyu and Kim, Seohyun and Chandra, Satish},
+  journal={arXiv preprint arXiv:1908.09804},
+  year={2019}
+}"""
         ],
         "URL": [
-            "https://github.com/delihiros/pseudogen",
+            "https://github.com/facebookresearch/Neural-Code-Search-Evaluation-Dataset",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -59,19 +56,20 @@ def create_meta_data(instances, sizes):
         # natural language and code semantic similarity
         # variable type
         "Reasoning": [
-            "Reasoning on code semantic"
+            "Reasoning on natural language semantic"
         ],
         "Prompt": [
             "Generate Python"
         ],
         "Definition": [
-            "Given a sentence of pseudo-code, your task is to generation the corresponding Python code statement."
+            "Given a natural language description, "
+            "this task is to generation the corresponding Android code with the same intent."
         ],
         "Input_language": [
-            "Programming Language -> Pseudo-Code"
+            "Natural Language -> English"
         ],
         "Output_language": [
-            "Programming Language -> Python"
+            "Programming Language -> Java -> Android"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -159,7 +157,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_pseudo_gen(data_dir, gen_type="code")
+    instances, sizes = read_ncs(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
