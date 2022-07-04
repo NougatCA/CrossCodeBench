@@ -17,7 +17,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "ncs"
+            "kb13"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -28,15 +28,16 @@ def create_meta_data(instances, sizes):
             "Generation"
         ],
         "BibTex": [
-            """@article{li2019neural,
-  title={Neural code search evaluation dataset},
-  author={Li, Hongyu and Kim, Seohyun and Chandra, Satish},
-  journal={arXiv preprint arXiv:1908.09804},
-  year={2019}
+            """@inproceedings{kushman2013using,
+  title={Using Semantic Unification to Generate Regular Expressions from Natural Language},
+  author={Kushman, Nate and Barzilay, Regina},
+  booktitle={Proceedings of the 2013 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies},
+  pages={826--836},
+  year={2013}
 }"""
         ],
         "URL": [
-            "https://github.com/facebookresearch/Neural-Code-Search-Evaluation-Dataset",
+            "http://groups.csail.mit.edu/rbg/code/regexp/",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -47,7 +48,7 @@ def create_meta_data(instances, sizes):
         # Summarization
         # Generation -> Commit Message
         "Categories": [
-            "Code Generation"
+            "Generation"
         ],
         # code defect
         # code semantic similarity
@@ -59,17 +60,16 @@ def create_meta_data(instances, sizes):
             "Reasoning on natural language semantic"
         ],
         "Prompt": [
-            "Generate Python"
+            "Generate Bash command"
         ],
         "Definition": [
-            "Given a natural language description, "
-            "this task is to generation the corresponding Android code with the same intent."
+            "In this task, your task is to generate the Bash command by giving the natural language description."
         ],
         "Input_language": [
             "Natural Language -> English"
         ],
         "Output_language": [
-            "Programming Language -> Java -> Android"
+            "Programming Language -> Bash command"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -157,7 +157,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_ncs(data_dir)
+    instances, sizes = read_kb13(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 

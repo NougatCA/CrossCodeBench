@@ -1807,7 +1807,7 @@ def read_java_large_method_name(data_dir):
         "test": 0
     }
     for split in ["train", "valid", "test"]:
-        with open(os.path.join(data_dir, f"{split}_name.jsonl"), mode="r", encoding="utf-8") as f:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
             lines = f.readlines()
         for idx, line in enumerate(tqdm(lines, desc="Reading", total=len(lines))):
             js = json.loads(line.strip())
@@ -1878,3 +1878,60 @@ def read_ncs(data_dir):
     assert sizes["total"] == len(instances)
     return instances, sizes
 
+
+def read_nl_2_bash(data_dir, mode):
+    assert mode in ["gen", "sum"]
+    if mode == "gen":
+        src_name = "nl"
+        tgt_name = "cm"
+    else:
+        src_name = "cm"
+        tgt_name = "nl"
+    data_dir = os.path.join(data_dir, "nl_2_bash")
+
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    with open(os.path.join(data_dir, f"all.{src_name}.filtered"), mode="r", encoding="utf-8") as src_f, \
+         open(os.path.join(data_dir, f"all.{tgt_name}.filtered"), mode="r", encoding="utf-8") as tgt_f:
+        sources = src_f.readlines()
+        targets = tgt_f.readlines()
+    assert len(sources) == len(targets)
+    for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
+        source = source.strip()
+        target = target.strip()
+        instances.append(
+            DataInstance(
+                inputs=source.strip(),
+                outputs=target.strip(),
+                split="",
+                idx=str(idx)
+            )
+        )
+        sizes["total"] += 1
+    return instances, sizes
+
+
+def read_kb13(data_dir):
+    import csv
+    data_dir = os.path.join(data_dir, "kb13")
+    instances = []
+    sizes = {
+        "total": 0,
+    }
+    with open(os.path.join(data_dir, f"regexp-naacl2013-data.csv"), mode="r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        idx = 0
+        for row in reader:
+            instances.append(
+                DataInstance(
+                    inputs=row[0].strip(),
+                    outputs=row[1].strip(),
+                    split="",
+                    idx=str(idx)
+                )
+            )
+            idx += 1
+            sizes["total"] += 1
+    return instances, sizes
