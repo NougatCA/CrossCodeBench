@@ -48,7 +48,7 @@ def create_meta_data(instances, sizes):
         # Summarization
         # Generation -> Commit Message
         "Categories": [
-            "Generation"
+            "Generation -> Regex Expression"
         ],
         # code defect
         # code semantic similarity
@@ -60,16 +60,16 @@ def create_meta_data(instances, sizes):
             "Reasoning on natural language semantic"
         ],
         "Prompt": [
-            "Generate Bash command"
+            "Generate Regex"
         ],
         "Definition": [
-            "In this task, your task is to generate the Bash command by giving the natural language description."
+            "Given a natural language intent, your task is to generate the corresponding Regex expression that match the given intent."
         ],
         "Input_language": [
             "Natural Language -> English"
         ],
         "Output_language": [
-            "Programming Language -> Bash command"
+            "Programming Language -> Regex Expression"
         ],
         "Instruction_language": [
             "Natural Language -> English"
