@@ -17,7 +17,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "spoc"
+            "t_fix"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -28,16 +28,17 @@ def create_meta_data(instances, sizes):
             "Generation"
         ],
         "BibTex": [
-            """@article{kulal2019spoc,
-  title={Spoc: Search-based pseudocode to code},
-  author={Kulal, Sumith and Pasupat, Panupong and Chandra, Kartik and Lee, Mina and Padon, Oded and Aiken, Alex and Liang, Percy S},
-  journal={Advances in Neural Information Processing Systems},
-  volume={32},
-  year={2019}
+            """@inproceedings{berabi2021tfix,
+  title={Tfix: Learning to fix coding errors with a text-to-text transformer},
+  author={Berabi, Berkay and He, Jingxuan and Raychev, Veselin and Vechev, Martin},
+  booktitle={International Conference on Machine Learning},
+  pages={780--791},
+  year={2021},
+  organization={PMLR}
 }"""
         ],
         "URL": [
-            "https://sumith1896.github.io/spoc/",
+            "https://github.com/eth-sri/TFix",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -47,8 +48,9 @@ def create_meta_data(instances, sizes):
         # Named Entity Recognition -> Type Prediction
         # Summarization
         # Generation -> Commit Message
+        # Generation -> Program Synthesis
         "Categories": [
-            "Generation"
+            "Code Modification -> Bug Fixing"
         ],
         # code defect
         # code semantic similarity
@@ -57,19 +59,19 @@ def create_meta_data(instances, sizes):
         # natural language and code semantic similarity
         # variable type
         "Reasoning": [
-            "Reasoning on natural language semantic"
+            "Reasoning on code defect"
         ],
         "Prompt": [
-            "Generate C++"
+            "Generate fixed code"
         ],
         "Definition": [
-            "Given a natural language Pseudo-Code, this task is to generate a functionally correct C++ code."
+            "You are given a JavaScript function that contains bug, the task is to generate its fixed version."
         ],
         "Input_language": [
-            "Programming Language -> Pseudo-Code"
+            "Programming Language -> JavaScript"
         ],
         "Output_language": [
-            "Programming Language -> C++"
+            "Programming Language -> JavaScript"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -86,7 +88,7 @@ def create_meta_data(instances, sizes):
         # API
         # Commit message
         "Domains": [
-            "Code"
+            "Code defect"
         ],
         "Instance_number": [
             sizes
@@ -157,7 +159,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_spoc(data_dir)
+    instances, sizes = read_t_fix(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
