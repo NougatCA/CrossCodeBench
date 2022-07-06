@@ -17,7 +17,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "kb13"
+            "apps"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -28,16 +28,15 @@ def create_meta_data(instances, sizes):
             "Generation"
         ],
         "BibTex": [
-            """@inproceedings{kushman2013using,
-  title={Using Semantic Unification to Generate Regular Expressions from Natural Language},
-  author={Kushman, Nate and Barzilay, Regina},
-  booktitle={Proceedings of the 2013 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies},
-  pages={826--836},
-  year={2013}
+            """@inproceedings{hendrycks2021measuring,
+  title={Measuring Coding Challenge Competence With APPS},
+  author={Hendrycks, Dan and Basart, Steven and Kadavath, Saurav and Mazeika, Mantas and Arora, Akul and Guo, Ethan and Burns, Collin and Puranik, Samir and He, Horace and Song, Dawn and others},
+  booktitle={Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2)},
+  year={2021}
 }"""
         ],
         "URL": [
-            "http://groups.csail.mit.edu/rbg/code/regexp/",
+            "https://huggingface.co/datasets/codeparrot/apps",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -47,8 +46,9 @@ def create_meta_data(instances, sizes):
         # Named Entity Recognition -> Type Prediction
         # Summarization
         # Generation -> Commit Message
+        # Generation -> Program Synthesis
         "Categories": [
-            "Generation -> Regex Expression"
+            "Code Generation"
         ],
         # code defect
         # code semantic similarity
@@ -60,16 +60,16 @@ def create_meta_data(instances, sizes):
             "Reasoning on natural language semantic"
         ],
         "Prompt": [
-            "Generate Regex"
+            "Generate Python"
         ],
         "Definition": [
-            "Given a natural language intent, your task is to generate the corresponding Regex expression that match the given intent."
+            "In this task, your task is to answer the given natural langauge description of a programming problem, your answer must be written in Python."
         ],
         "Input_language": [
             "Natural Language -> English"
         ],
         "Output_language": [
-            "Programming Language -> Regex Expression"
+            "Programming Language -> Python"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -157,7 +157,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_kb13(data_dir)
+    instances, sizes = read_apps(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 

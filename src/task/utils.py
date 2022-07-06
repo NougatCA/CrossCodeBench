@@ -1935,3 +1935,371 @@ def read_kb13(data_dir):
             idx += 1
             sizes["total"] += 1
     return instances, sizes
+
+
+def read_nl_rx(data_dir):
+    data_dir = os.path.join(data_dir, "nl_rx")
+
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    with open(os.path.join(data_dir, "src.txt"), mode="r", encoding="utf-8") as src_f, \
+         open(os.path.join(data_dir, "targ.txt"), mode="r", encoding="utf-8") as tgt_f:
+        sources = src_f.readlines()
+        targets = tgt_f.readlines()
+    assert len(sources) == len(targets)
+    for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
+        source = source.strip()
+        target = target.strip()
+        instances.append(
+            DataInstance(
+                inputs=source.strip(),
+                outputs=target.strip(),
+                split="",
+                idx=str(idx)
+            )
+        )
+        sizes["total"] += 1
+    return instances, sizes
+
+
+def read_spoc(data_dir):
+    import csv
+    data_dir = os.path.join(data_dir, "spoc")
+    instances = []
+    sizes = {
+        "train-eval": 0,
+        "train-train": 0,
+        "train-test": 0,
+        "testp": 0,
+        "testw": 0
+    }
+    for split in sizes.keys():
+        with open(os.path.join(data_dir, f"spoc-{split}.tsv"), mode="r", encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter="\t")
+            header = next(reader)
+            for row in reader:
+                pseudo = row[0].strip()
+                code = row[1].strip()
+                idx = "#".join(row[2:])
+                if pseudo == "" or code == "":
+                    continue
+                instances.append(
+                    DataInstance(
+                        inputs=pseudo,
+                        outputs=code,
+                        split=split,
+                        idx=idx
+                    )
+                )
+                sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_algo_lisp(data_dir):
+    import csv
+
+    data_dir = os.path.join(data_dir, "algo_lisp")
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    global_idx = 0
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.tsv"), mode="r", encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter="\t")
+            for row in reader:
+                nl = row[0].strip()
+                code = row[1].strip()
+                if nl == "" or code == "":
+                    continue
+                instances.append(
+                    DataInstance(
+                        inputs=nl,
+                        outputs=code,
+                        split=split,
+                        idx=str(global_idx)
+                    )
+                )
+                sizes[split] += 1
+                global_idx += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_deep_api(data_dir):
+    import csv
+
+    data_dir = os.path.join(data_dir, "deep_api")
+    instances = []
+    sizes = {
+        "train": 0,
+        "test": 0
+    }
+    global_idx = 0
+    for split in ["train", "test"]:
+        with open(os.path.join(data_dir, f"{split}.tsv"), mode="r", encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter="\t")
+            for row in reader:
+                nl = row[0].strip()
+                api = " ".join(row[1].strip().split())
+                if nl == "" or api == "":
+                    continue
+                instances.append(
+                    DataInstance(
+                        inputs=nl,
+                        outputs=api,
+                        split=split,
+                        idx=str(global_idx)
+                    )
+                )
+                sizes[split] += 1
+                global_idx += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_code_search_net_method_name(data_dir, subset):
+    assert subset in ["java", "python", "javascript", "php", "go", "ruby"]
+
+    data_dir = os.path.join(data_dir, "code_search_net_filtered", subset)
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, total=len(lines), desc=f"Loading {split} data")):
+            js = json.loads(line.strip())
+            source = " ".join(js["code_tokens"])
+            target = js["func_name"].strip()
+            source = source.replace(target, "f")
+            instances.append(
+                DataInstance(
+                    inputs=source,
+                    outputs=target,
+                    split=split,
+                    idx=js["path"]
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_naps(data_dir):
+    data_dir = os.path.join(data_dir, "naps")
+
+    instances = []
+    sizes = {
+        "trainB": 0,
+        "test": 0
+    }
+    for split in sizes.keys():
+        with open(os.path.join(data_dir, f"naps.{split}.1.0.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for line in tqdm(lines, total=len(lines), desc=f"Loading {split} data"):
+            js = json.loads(line.strip())
+            code = " ".join(js["code_sequence"])
+            nl = " ".join(js["text"])
+            idx = js["entry_id"]
+            instances.append(
+                DataInstance(
+                    inputs=nl,
+                    outputs=code,
+                    split=split,
+                    idx=idx
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_shell_code_ia32(data_dir):
+    import csv
+
+    data_dir = os.path.join(data_dir, "shell_code_ia32")
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    global_idx = 0
+    with open(os.path.join(data_dir, "Shellcode_IA32.tsv"), mode="r", encoding="utf-8") as f:
+        reader = csv.reader(f, delimiter="\t")
+        header = next(reader)
+        for row in reader:
+            shell = row[0].strip()
+            intent = row[1].strip()
+            if shell == "" or intent == "":
+                continue
+            instances.append(
+                DataInstance(
+                    inputs=intent,
+                    outputs=shell,
+                    split="",
+                    idx=str(global_idx)
+                )
+            )
+            sizes["total"] += 1
+            global_idx += 1
+    return instances, sizes
+
+
+def read_evil(data_dir, subset):
+    assert subset in ["encoder", "decoder"]
+    data_dir = os.path.join(data_dir, "evil", subset)
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    global_idx = 0
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{subset}-{split}.in"), mode="r", encoding="utf-8") as src_f, \
+             open(os.path.join(data_dir, f"{subset}-{split}.out"), mode="r", encoding="utf-8") as tgt_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+        assert len(sources) == len(targets)
+        for source, target in tqdm(zip(sources, targets), desc="Reading", total=len(sources)):
+            instances.append(
+                DataInstance(
+                    inputs=source.strip(),
+                    outputs=target.strip(),
+                    split=split,
+                    idx=str(global_idx)
+                )
+            )
+            sizes[split] += 1
+            global_idx += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_t_fix(data_dir):
+    data_dir = os.path.join(data_dir, "t_fix")
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    for split in ["eslint", "repo_specific"]:
+        with open(os.path.join(data_dir, f"data_autofix_tracking_{split}_final.json"), mode="r", encoding="utf-8") as f:
+            data = json.load(f)
+        for item in tqdm(data):
+            source = item["source_code"].strip()
+            target = item["target_code"].strip()
+            idx = "#".join([item["repo"], item["source_changeid"], item["target_changeid"]])
+            instances.append(
+                DataInstance(
+                    inputs=source,
+                    outputs=target,
+                    split=split,
+                    idx=idx
+                )
+            )
+            sizes["total"] += 1
+    return instances, sizes
+
+
+def read_many_sstubs_4_j_sstubs_type(data_dir):
+    data_dir = os.path.join(data_dir, "many_sstubs_4_j")
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    with open(os.path.join(data_dir, f"sstubsLarge.json"), mode="r", encoding="utf-8") as f:
+        data = json.load(f)
+    for item in tqdm(data):
+        source = item["sourceBeforeFix"].strip()
+        fixed = item["sourceAfterFix"].strip()
+        target = item["bugType"].strip()
+        target = " ".join(target.split("_")).title()
+        idx = "#".join([item["projectName"], item["commitSHA1"] if "commitSHA1" in item else item["fixCommitParentSHA1"]])
+        instances.append(
+            DataInstance(
+                inputs=[source, fixed],
+                outputs=target,
+                split="",
+                idx=idx
+            )
+        )
+        sizes["total"] += 1
+    return instances, sizes
+
+
+def read_cod_rep(data_dir):
+    data_dir = os.path.join(data_dir, "cod_rep")
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    global_idx = 0
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"src-{split}.txt"), mode="r", encoding="utf-8") as src_f, \
+             open(os.path.join(data_dir, f"tgt-{split}.txt"), mode="r", encoding="utf-8") as tgt_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+        assert len(sources) == len(targets)
+        for source, target in tqdm(zip(sources, targets), desc="Reading", total=len(sources)):
+            instances.append(
+                DataInstance(
+                    inputs=source.strip(),
+                    outputs=target.strip(),
+                    split=split,
+                    idx=str(global_idx)
+                )
+            )
+            sizes[split] += 1
+            global_idx += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_apps(data_dir):
+    from datasets import load_from_disk
+    data_dir = os.path.join(data_dir, "apps")
+    instances = []
+    sizes = {
+        "train": 0,
+        "test": 0
+    }
+    dataset = load_from_disk("datasets/apps/")
+    global_idx = 0
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"src-{split}.txt"), mode="r", encoding="utf-8") as src_f, \
+                open(os.path.join(data_dir, f"tgt-{split}.txt"), mode="r", encoding="utf-8") as tgt_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+        assert len(sources) == len(targets)
+        for source, target in tqdm(zip(sources, targets), desc="Reading", total=len(sources)):
+            instances.append(
+                DataInstance(
+                    inputs=source.strip(),
+                    outputs=target.strip(),
+                    split=split,
+                    idx=str(global_idx)
+                )
+            )
+            sizes[split] += 1
+            global_idx += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
