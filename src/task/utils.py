@@ -1935,3 +1935,65 @@ def read_kb13(data_dir):
             idx += 1
             sizes["total"] += 1
     return instances, sizes
+
+
+def read_nl_rx(data_dir):
+    data_dir = os.path.join(data_dir, "nl_rx")
+
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    with open(os.path.join(data_dir, "src.txt"), mode="r", encoding="utf-8") as src_f, \
+         open(os.path.join(data_dir, "targ.txt"), mode="r", encoding="utf-8") as tgt_f:
+        sources = src_f.readlines()
+        targets = tgt_f.readlines()
+    assert len(sources) == len(targets)
+    for idx, (source, target) in enumerate(tqdm(zip(sources, targets), desc="Reading", total=len(sources))):
+        source = source.strip()
+        target = target.strip()
+        instances.append(
+            DataInstance(
+                inputs=source.strip(),
+                outputs=target.strip(),
+                split="",
+                idx=str(idx)
+            )
+        )
+        sizes["total"] += 1
+    return instances, sizes
+
+
+def read_spoc(data_dir):
+    import csv
+    data_dir = os.path.join(data_dir, "spoc")
+    instances = []
+    sizes = {
+        "train-eval": 0,
+        "train-train": 0,
+        "train-test": 0,
+        "testp": 0,
+        "testw": 0
+    }
+    for split in sizes.keys():
+        with open(os.path.join(data_dir, f"spoc-{split}.tsv"), mode="r", encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter="\t")
+            header = next(reader)
+            for row in reader:
+                pseudo = row[0].strip()
+                code = row[1].strip()
+                idx = "#".join(row[2:])
+                if pseudo == "" or code == "":
+                    continue
+                instances.append(
+                    DataInstance(
+                        inputs=pseudo,
+                        outputs=code,
+                        split=split,
+                        idx=idx
+                    )
+                )
+                sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes

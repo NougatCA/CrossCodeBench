@@ -17,7 +17,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "kb13"
+            "spoc"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -28,16 +28,16 @@ def create_meta_data(instances, sizes):
             "Generation"
         ],
         "BibTex": [
-            """@inproceedings{kushman2013using,
-  title={Using Semantic Unification to Generate Regular Expressions from Natural Language},
-  author={Kushman, Nate and Barzilay, Regina},
-  booktitle={Proceedings of the 2013 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies},
-  pages={826--836},
-  year={2013}
+            """@article{kulal2019spoc,
+  title={Spoc: Search-based pseudocode to code},
+  author={Kulal, Sumith and Pasupat, Panupong and Chandra, Kartik and Lee, Mina and Padon, Oded and Aiken, Alex and Liang, Percy S},
+  journal={Advances in Neural Information Processing Systems},
+  volume={32},
+  year={2019}
 }"""
         ],
         "URL": [
-            "http://groups.csail.mit.edu/rbg/code/regexp/",
+            "https://sumith1896.github.io/spoc/",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -60,16 +60,16 @@ def create_meta_data(instances, sizes):
             "Reasoning on natural language semantic"
         ],
         "Prompt": [
-            "Generate Bash command"
+            "Generate C++"
         ],
         "Definition": [
-            "In this task, your task is to generate the Bash command by giving the natural language description."
+            "Given a natural language Pseudo-Code, this task is to generate a functionally correct C++ code."
         ],
         "Input_language": [
-            "Natural Language -> English"
+            "Programming Language -> Pseudo-Code"
         ],
         "Output_language": [
-            "Programming Language -> Bash command"
+            "Programming Language -> C++"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -157,7 +157,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_kb13(data_dir)
+    instances, sizes = read_spoc(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
