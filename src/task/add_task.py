@@ -17,7 +17,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "t_fix"
+            "apps"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -28,17 +28,15 @@ def create_meta_data(instances, sizes):
             "Generation"
         ],
         "BibTex": [
-            """@inproceedings{berabi2021tfix,
-  title={Tfix: Learning to fix coding errors with a text-to-text transformer},
-  author={Berabi, Berkay and He, Jingxuan and Raychev, Veselin and Vechev, Martin},
-  booktitle={International Conference on Machine Learning},
-  pages={780--791},
-  year={2021},
-  organization={PMLR}
+            """@article{chen2018codrep,
+  title={The codrep machine learning on source code competition},
+  author={Chen, Zimin and Monperrus, Martin},
+  journal={arXiv preprint arXiv:1807.03200},
+  year={2018}
 }"""
         ],
         "URL": [
-            "https://github.com/eth-sri/TFix",
+            "https://github.com/KTH/CodRep-competition/",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -65,13 +63,13 @@ def create_meta_data(instances, sizes):
             "Generate fixed code"
         ],
         "Definition": [
-            "You are given a JavaScript function that contains bug, the task is to generate its fixed version."
+            "Given a source code snippet which contains a bug, you have to generate the corresponding fixed code."
         ],
         "Input_language": [
-            "Programming Language -> JavaScript"
+            "Programming Language -> Java"
         ],
         "Output_language": [
-            "Programming Language -> JavaScript"
+            "Programming Language -> Java"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -159,7 +157,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_t_fix(data_dir)
+    instances, sizes = read_cod_rep(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 

@@ -2216,6 +2216,58 @@ def read_t_fix(data_dir):
     return instances, sizes
 
 
-def read_many_sstubs_4_j(data_dir):
-    # https://zenodo.org/record/3653444#.YsRW_WBBwQ8
-    pass
+def read_many_sstubs_4_j_sstubs_type(data_dir):
+    data_dir = os.path.join(data_dir, "many_sstubs_4_j")
+    instances = []
+    sizes = {
+        "total": 0
+    }
+    with open(os.path.join(data_dir, f"sstubsLarge.json"), mode="r", encoding="utf-8") as f:
+        data = json.load(f)
+    for item in tqdm(data):
+        source = item["sourceBeforeFix"].strip()
+        fixed = item["sourceAfterFix"].strip()
+        target = item["bugType"].strip()
+        target = " ".join(target.split("_")).title()
+        idx = "#".join([item["projectName"], item["commitSHA1"] if "commitSHA1" in item else item["fixCommitParentSHA1"]])
+        instances.append(
+            DataInstance(
+                inputs=[source, fixed],
+                outputs=target,
+                split="",
+                idx=idx
+            )
+        )
+        sizes["total"] += 1
+    return instances, sizes
+
+
+def read_cod_rep(data_dir):
+    data_dir = os.path.join(data_dir, "cod_rep")
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    global_idx = 0
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"src-{split}.txt"), mode="r", encoding="utf-8") as src_f, \
+             open(os.path.join(data_dir, f"tgt-{split}.txt"), mode="r", encoding="utf-8") as tgt_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+        assert len(sources) == len(targets)
+        for source, target in tqdm(zip(sources, targets), desc="Reading", total=len(sources)):
+            instances.append(
+                DataInstance(
+                    inputs=source.strip(),
+                    outputs=target.strip(),
+                    split=split,
+                    idx=str(global_idx)
+                )
+            )
+            sizes[split] += 1
+            global_idx += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
