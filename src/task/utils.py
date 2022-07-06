@@ -2303,3 +2303,23 @@ def read_apps(data_dir):
     assert sum(sizes.values()) == len(instances)
     sizes["total"] = len(instances)
     return instances, sizes
+
+
+def read_py_torrent(data_dir):
+    # https://github.com/fla-sil/PyTorrent
+    pass
+
+
+def read_jul_ce(data_dir):
+    # https://github.com/rajasagashe/juice
+    pass
+
+
+def read_notebook_cdg(data_dir):
+    # https://github.com/dakuo/haconvgnn
+    pass
+
+
+def read_boa(data_dir):
+    #
+    pass
