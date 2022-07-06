@@ -28,15 +28,15 @@ def create_meta_data(instances, sizes):
             "Generation"
         ],
         "BibTex": [
-            """@article{chen2018codrep,
-  title={The codrep machine learning on source code competition},
-  author={Chen, Zimin and Monperrus, Martin},
-  journal={arXiv preprint arXiv:1807.03200},
-  year={2018}
+            """@inproceedings{hendrycks2021measuring,
+  title={Measuring Coding Challenge Competence With APPS},
+  author={Hendrycks, Dan and Basart, Steven and Kadavath, Saurav and Mazeika, Mantas and Arora, Akul and Guo, Ethan and Burns, Collin and Puranik, Samir and He, Horace and Song, Dawn and others},
+  booktitle={Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2)},
+  year={2021}
 }"""
         ],
         "URL": [
-            "https://github.com/KTH/CodRep-competition/",
+            "https://huggingface.co/datasets/codeparrot/apps",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -48,7 +48,7 @@ def create_meta_data(instances, sizes):
         # Generation -> Commit Message
         # Generation -> Program Synthesis
         "Categories": [
-            "Code Modification -> Bug Fixing"
+            "Code Generation"
         ],
         # code defect
         # code semantic similarity
@@ -57,19 +57,19 @@ def create_meta_data(instances, sizes):
         # natural language and code semantic similarity
         # variable type
         "Reasoning": [
-            "Reasoning on code defect"
+            "Reasoning on natural language semantic"
         ],
         "Prompt": [
-            "Generate fixed code"
+            "Generate Python"
         ],
         "Definition": [
-            "Given a source code snippet which contains a bug, you have to generate the corresponding fixed code."
+            "In this task, your task is to answer the given natural langauge description of a programming problem, your answer must be written in Python."
         ],
         "Input_language": [
-            "Programming Language -> Java"
+            "Natural Language -> English"
         ],
         "Output_language": [
-            "Programming Language -> Java"
+            "Programming Language -> Python"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -86,7 +86,7 @@ def create_meta_data(instances, sizes):
         # API
         # Commit message
         "Domains": [
-            "Code defect"
+            "Code"
         ],
         "Instance_number": [
             sizes
@@ -157,7 +157,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_cod_rep(data_dir)
+    instances, sizes = read_apps(data_dir)
     meta, data = create_meta_data(instances, sizes)
     write_task(meta, data, task_dir)
 
