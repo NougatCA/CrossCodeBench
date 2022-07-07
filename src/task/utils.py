@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 import os
 import json
@@ -15,7 +14,6 @@ class DataInstance:
 
 
 def read_devign(data_dir):
-
     data_dir = os.path.join(data_dir, "devign")
 
     instances = []
@@ -43,7 +41,6 @@ def read_devign(data_dir):
 
 
 def read_bigclonebench(data_dir):
-
     data_dir = os.path.join(data_dir, "bigclonebench")
 
     aux_data = {}
@@ -81,7 +78,6 @@ def read_bigclonebench(data_dir):
 
 
 def read_exception_type(data_dir):
-
     data_dir = os.path.join(data_dir, "exception_type")
 
     instances = []
@@ -111,7 +107,6 @@ def read_exception_type(data_dir):
 
 
 def read_function_docstring_mismatch(data_dir):
-
     data_dir = os.path.join(data_dir, "function_docstring_mismatch")
 
     instances = []
@@ -142,7 +137,6 @@ def read_function_docstring_mismatch(data_dir):
 
 
 def read_variable_misuse(data_dir):
-
     data_dir = os.path.join(data_dir, "variable_misuse")
 
     instances = []
@@ -172,7 +166,6 @@ def read_variable_misuse(data_dir):
 
 
 def read_swapped_operands(data_dir):
-
     data_dir = os.path.join(data_dir, "swapped_operands")
 
     instances = []
@@ -202,7 +195,6 @@ def read_swapped_operands(data_dir):
 
 
 def read_wrong_binary_operator(data_dir):
-
     data_dir = os.path.join(data_dir, "wrong_binary_operator")
 
     instances = []
@@ -232,7 +224,6 @@ def read_wrong_binary_operator(data_dir):
 
 
 def read_web_query_test(data_dir):
-
     data_dir = os.path.join(data_dir, "web_query_test")
 
     instances = []
@@ -267,7 +258,6 @@ def read_web_query_test(data_dir):
 
 
 def read_cosqa(data_dir):
-
     data_dir = os.path.join(data_dir, "cosqa")
 
     instances = []
@@ -299,7 +289,6 @@ def read_cosqa(data_dir):
 
 
 def read_code_trans_java_cs(data_dir):
-
     data_dir = os.path.join(data_dir, "code_trans")
 
     instances = []
@@ -310,7 +299,7 @@ def read_code_trans_java_cs(data_dir):
     }
     for split in ["train", "valid", "test"]:
         with open(os.path.join(data_dir, f"{split}.java-cs.txt.java"), mode="r", encoding="utf-8") as src_f, \
-             open(os.path.join(data_dir, f"{split}.java-cs.txt.cs"), mode="r", encoding="utf-8") as tgt_f:
+                open(os.path.join(data_dir, f"{split}.java-cs.txt.cs"), mode="r", encoding="utf-8") as tgt_f:
             sources = src_f.readlines()
             targets = tgt_f.readlines()
         assert len(sources) == len(targets)
@@ -330,7 +319,6 @@ def read_code_trans_java_cs(data_dir):
 
 
 def read_code_trans_cs_java(data_dir):
-
     data_dir = os.path.join(data_dir, "code_trans")
 
     instances = []
@@ -341,7 +329,7 @@ def read_code_trans_cs_java(data_dir):
     }
     for split in ["train", "valid", "test"]:
         with open(os.path.join(data_dir, f"{split}.java-cs.txt.cs"), mode="r", encoding="utf-8") as src_f, \
-             open(os.path.join(data_dir, f"{split}.java-cs.txt.java"), mode="r", encoding="utf-8") as tgt_f:
+                open(os.path.join(data_dir, f"{split}.java-cs.txt.java"), mode="r", encoding="utf-8") as tgt_f:
             sources = src_f.readlines()
             targets = tgt_f.readlines()
         assert len(sources) == len(targets)
@@ -372,7 +360,8 @@ def read_trans_coder(data_dir, source_lang, target_lang):
     }
     for split in ["valid", "test"]:
         with open(os.path.join(data_dir, f"transcoder_{split}.{source_lang}.tok"), mode="r", encoding="utf-8") as src_f, \
-             open(os.path.join(data_dir, f"transcoder_{split}.{target_lang}.tok"), mode="r", encoding="utf-8") as tgt_f:
+                open(os.path.join(data_dir, f"transcoder_{split}.{target_lang}.tok"), mode="r",
+                     encoding="utf-8") as tgt_f:
             sources = src_f.readlines()
             targets = tgt_f.readlines()
         assert len(sources) == len(targets)
@@ -413,7 +402,7 @@ def read_bfp(data_dir, subset):
     }
     for split in ["train", "valid", "test"]:
         with open(os.path.join(data_dir, f"{split}.buggy-fixed.buggy"), mode="r", encoding="utf-8") as src_f, \
-             open(os.path.join(data_dir, f"{split}.buggy-fixed.fixed"), mode="r", encoding="utf-8") as tgt_f:
+                open(os.path.join(data_dir, f"{split}.buggy-fixed.fixed"), mode="r", encoding="utf-8") as tgt_f:
             sources = src_f.readlines()
             targets = tgt_f.readlines()
         assert len(sources) == len(targets)
@@ -442,8 +431,10 @@ def read_any_code_completion(data_dir):
         "test": 0
     }
     for split in ["train", "valid", "test"]:
-        with open(os.path.join(data_dir, f"data.TargetType.seq.{split}.source.txt"), mode="r", encoding="utf-8") as src_f, \
-             open(os.path.join(data_dir, f"data.TargetType.seq.{split}.target.txt"), mode="r", encoding="utf-8") as tgt_f:
+        with open(os.path.join(data_dir, f"data.TargetType.seq.{split}.source.txt"), mode="r",
+                  encoding="utf-8") as src_f, \
+                open(os.path.join(data_dir, f"data.TargetType.seq.{split}.target.txt"), mode="r",
+                     encoding="utf-8") as tgt_f:
             sources = src_f.readlines()
             targets = tgt_f.readlines()
         assert len(sources) == len(targets)
@@ -802,8 +793,8 @@ def read_code_docstring_corpus_sum(data_dir):
 
     for split in ["train", "valid", "test"]:
         with open(os.path.join(data_dir, f"data_ps.declbodies.{split}"), mode="r", encoding="utf-8") as src_f, \
-             open(os.path.join(data_dir, f"data_ps.descriptions.{split}"), mode="r", encoding="utf-8") as tgt_f, \
-             open(os.path.join(data_dir, f"data_ps.metadata.{split}"), mode="r", encoding="utf-8") as meta_f:
+                open(os.path.join(data_dir, f"data_ps.descriptions.{split}"), mode="r", encoding="utf-8") as tgt_f, \
+                open(os.path.join(data_dir, f"data_ps.metadata.{split}"), mode="r", encoding="utf-8") as meta_f:
             sources = src_f.readlines()
             targets = tgt_f.readlines()
             metas = meta_f.readlines()
@@ -861,9 +852,9 @@ def read_code_docstring_corpus_gen(data_dir):
 
     for split in ["train", "valid", "test"]:
         with open(os.path.join(data_dir, f"data_ps.declarations.{split}"), mode="r", encoding="utf-8") as decl_f, \
-             open(os.path.join(data_dir, f"data_ps.descriptions.{split}"), mode="r", encoding="utf-8") as desc_f, \
-             open(os.path.join(data_dir, f"data_ps.bodies.{split}"), mode="r", encoding="utf-8") as body_f, \
-             open(os.path.join(data_dir, f"data_ps.metadata.{split}"), mode="r", encoding="utf-8") as meta_f:
+                open(os.path.join(data_dir, f"data_ps.descriptions.{split}"), mode="r", encoding="utf-8") as desc_f, \
+                open(os.path.join(data_dir, f"data_ps.bodies.{split}"), mode="r", encoding="utf-8") as body_f, \
+                open(os.path.join(data_dir, f"data_ps.metadata.{split}"), mode="r", encoding="utf-8") as meta_f:
             decls = decl_f.readlines()
             descs = desc_f.readlines()
             targets = body_f.readlines()
@@ -890,7 +881,6 @@ def read_code_docstring_corpus_gen(data_dir):
 
 
 def read_concode(data_dir):
-
     data_dir = os.path.join(data_dir, "concode")
 
     instances = []
@@ -921,7 +911,6 @@ def read_concode(data_dir):
 
 
 def read_many_types_4_typescript(data_dir):
-
     def convert_target(tokens: list[str], labels: list[str]):
         assert len(tokens) == len(labels)
         results = [f"{token}: {label}" for token, label in zip(tokens, labels) if label is not None and label != "null"]
@@ -1062,8 +1051,8 @@ def read_code_qa(data_dir, subset):
     }
     for split in ["train", "valid", "test"]:
         with open(os.path.join(data_dir, f"{split}.code.original"), mode="r", encoding="utf-8") as code_f, \
-             open(os.path.join(data_dir, f"{split}.question"), mode="r", encoding="utf-8") as q_f, \
-             open(os.path.join(data_dir, f"{split}.answer"), mode="r", encoding="utf-8") as a_f:
+                open(os.path.join(data_dir, f"{split}.question"), mode="r", encoding="utf-8") as q_f, \
+                open(os.path.join(data_dir, f"{split}.answer"), mode="r", encoding="utf-8") as a_f:
             codes = code_f.readlines()
             questions = q_f.readlines()
             answers = a_f.readlines()
@@ -1116,7 +1105,8 @@ def read_code_gadget_database(data_dir, subset):
     sizes = {
         "total": 0
     }
-    with open(os.path.join(data_dir, "cwe{}_cgd.txt".format("119" if subset == "buffer" else "399")), mode="r", encoding="utf-8") as f:
+    with open(os.path.join(data_dir, "cwe{}_cgd.txt".format("119" if subset == "buffer" else "399")), mode="r",
+              encoding="utf-8") as f:
         examples = f.read().strip().split("---------------------------------")
         for example in examples:
             lines = example.strip().split("\n")
@@ -1218,7 +1208,7 @@ def read_buffer_overrun(data_dir):
     }
     global_idx = 0
     with open(os.path.join(data_dir, "training_100.txt"), mode="r", encoding="utf-8") as src_f, \
-         open(os.path.join(data_dir, "training_100_labels.txt"), mode="r", encoding="utf-8") as tgt_f:
+            open(os.path.join(data_dir, "training_100_labels.txt"), mode="r", encoding="utf-8") as tgt_f:
         codes = []
         labels = []
         start = 0
@@ -1247,7 +1237,7 @@ def read_buffer_overrun(data_dir):
 
     for name in ["1", "2", "3", "4"]:
         with open(os.path.join(data_dir, f"test_{name}_100.txt"), mode="r", encoding="utf-8") as src_f, \
-             open(os.path.join(data_dir, f"test_{name}_100_labels.txt"), mode="r", encoding="utf-8") as tgt_f:
+                open(os.path.join(data_dir, f"test_{name}_100_labels.txt"), mode="r", encoding="utf-8") as tgt_f:
             codes = []
             labels = []
             start = 0
@@ -1375,12 +1365,12 @@ def read_xlcost_translate(data_dir, source_lang, target_lang, mode):
     for split, split_name in zip(["train", "valid", "test"], ["train", "val", "test"]):
         with open(os.path.join(data_dir, f"{split_name}-{task_name}-tok.{source_ext}"),
                   mode="r", encoding="utf-8") as src_f, \
-             open(os.path.join(data_dir, f"{split_name}-{task_name}-tok.{target_ext}"),
-                  mode="r", encoding="utf-8") as tgt_f, \
-             open(os.path.join(data_dir, f"{split_name}-{source_lang}-map.jsonl"),
-                  mode="r", encoding="utf-8") as src_idx_f, \
-             open(os.path.join(data_dir, f"{split_name}-{target_lang}-map.jsonl"),
-                  mode="r", encoding="utf-8") as tgt_idx_f:
+                open(os.path.join(data_dir, f"{split_name}-{task_name}-tok.{target_ext}"),
+                     mode="r", encoding="utf-8") as tgt_f, \
+                open(os.path.join(data_dir, f"{split_name}-{source_lang}-map.jsonl"),
+                     mode="r", encoding="utf-8") as src_idx_f, \
+                open(os.path.join(data_dir, f"{split_name}-{target_lang}-map.jsonl"),
+                     mode="r", encoding="utf-8") as tgt_idx_f:
             sources = src_f.readlines()
             targets = tgt_f.readlines()
             source_indices = src_idx_f.readlines()
@@ -1557,8 +1547,8 @@ def read_avatar(data_dir, source_lang, target_lang):
     }
     for split in ["train", "valid", "test"]:
         with open(os.path.join(data_dir, f"{split}.java-python.{source_lang}"), mode="r", encoding="utf-8") as src_f, \
-             open(os.path.join(data_dir, f"{split}.java-python.{target_lang}"), mode="r", encoding="utf-8") as tgt_f, \
-             open(os.path.join(data_dir, f"{split}.java-python.id"), mode="r", encoding="utf-8") as idx_f:
+                open(os.path.join(data_dir, f"{split}.java-python.{target_lang}"), mode="r", encoding="utf-8") as tgt_f, \
+                open(os.path.join(data_dir, f"{split}.java-python.id"), mode="r", encoding="utf-8") as idx_f:
             sources = src_f.readlines()
             targets = tgt_f.readlines()
             indices = idx_f.readlines()
@@ -1579,7 +1569,6 @@ def read_avatar(data_dir, source_lang, target_lang):
 
 
 def read_many_types_4_py(data_dir):
-
     def convert_target(tokens: str, types: str):
         tokens = tokens.strip().split()
         types = types.strip().split()
@@ -1653,7 +1642,7 @@ def read_commit_gen(data_dir):
     global_idx = 0
     for split in ["train", "valid", "test"]:
         with open(os.path.join(data_dir, f"cleaned.{split}.diff"), mode="r", encoding="utf-8") as src_f, \
-             open(os.path.join(data_dir, f"cleaned.{split}.msg"), mode="r", encoding="utf-8") as tgt_f:
+                open(os.path.join(data_dir, f"cleaned.{split}.msg"), mode="r", encoding="utf-8") as tgt_f:
             sources = src_f.readlines()
             targets = tgt_f.readlines()
         assert len(sources) == len(targets)
@@ -1780,7 +1769,7 @@ def read_pseudo_gen(data_dir, gen_type):
         "total": 0
     }
     with open(os.path.join(data_dir, f"all.{source_ext}"), mode="r", encoding="utf-8") as src_f, \
-         open(os.path.join(data_dir, f"all.{target_ext}"), mode="r", encoding="utf-8") as tgt_f:
+            open(os.path.join(data_dir, f"all.{target_ext}"), mode="r", encoding="utf-8") as tgt_f:
         sources = src_f.readlines()
         targets = tgt_f.readlines()
     assert len(sources) == len(targets)
@@ -1894,7 +1883,7 @@ def read_nl_2_bash(data_dir, mode):
         "total": 0
     }
     with open(os.path.join(data_dir, f"all.{src_name}.filtered"), mode="r", encoding="utf-8") as src_f, \
-         open(os.path.join(data_dir, f"all.{tgt_name}.filtered"), mode="r", encoding="utf-8") as tgt_f:
+            open(os.path.join(data_dir, f"all.{tgt_name}.filtered"), mode="r", encoding="utf-8") as tgt_f:
         sources = src_f.readlines()
         targets = tgt_f.readlines()
     assert len(sources) == len(targets)
@@ -1945,7 +1934,7 @@ def read_nl_rx(data_dir):
         "total": 0
     }
     with open(os.path.join(data_dir, "src.txt"), mode="r", encoding="utf-8") as src_f, \
-         open(os.path.join(data_dir, "targ.txt"), mode="r", encoding="utf-8") as tgt_f:
+            open(os.path.join(data_dir, "targ.txt"), mode="r", encoding="utf-8") as tgt_f:
         sources = src_f.readlines()
         targets = tgt_f.readlines()
     assert len(sources) == len(targets)
@@ -2171,7 +2160,7 @@ def read_evil(data_dir, subset):
     global_idx = 0
     for split in ["train", "valid", "test"]:
         with open(os.path.join(data_dir, f"{subset}-{split}.in"), mode="r", encoding="utf-8") as src_f, \
-             open(os.path.join(data_dir, f"{subset}-{split}.out"), mode="r", encoding="utf-8") as tgt_f:
+                open(os.path.join(data_dir, f"{subset}-{split}.out"), mode="r", encoding="utf-8") as tgt_f:
             sources = src_f.readlines()
             targets = tgt_f.readlines()
         assert len(sources) == len(targets)
@@ -2229,7 +2218,8 @@ def read_many_sstubs_4_j_sstubs_type(data_dir):
         fixed = item["sourceAfterFix"].strip()
         target = item["bugType"].strip()
         target = " ".join(target.split("_")).title()
-        idx = "#".join([item["projectName"], item["commitSHA1"] if "commitSHA1" in item else item["fixCommitParentSHA1"]])
+        idx = "#".join(
+            [item["projectName"], item["commitSHA1"] if "commitSHA1" in item else item["fixCommitParentSHA1"]])
         instances.append(
             DataInstance(
                 inputs=[source, fixed],
@@ -2253,7 +2243,7 @@ def read_cod_rep(data_dir):
     global_idx = 0
     for split in ["train", "valid", "test"]:
         with open(os.path.join(data_dir, f"src-{split}.txt"), mode="r", encoding="utf-8") as src_f, \
-             open(os.path.join(data_dir, f"tgt-{split}.txt"), mode="r", encoding="utf-8") as tgt_f:
+                open(os.path.join(data_dir, f"tgt-{split}.txt"), mode="r", encoding="utf-8") as tgt_f:
             sources = src_f.readlines()
             targets = tgt_f.readlines()
         assert len(sources) == len(targets)
@@ -2281,19 +2271,15 @@ def read_apps(data_dir):
         "train": 0,
         "test": 0
     }
-    dataset = load_from_disk("datasets/apps/")
+    dataset = load_from_disk(data_dir)
     global_idx = 0
-    for split in ["train", "valid", "test"]:
-        with open(os.path.join(data_dir, f"src-{split}.txt"), mode="r", encoding="utf-8") as src_f, \
-                open(os.path.join(data_dir, f"tgt-{split}.txt"), mode="r", encoding="utf-8") as tgt_f:
-            sources = src_f.readlines()
-            targets = tgt_f.readlines()
-        assert len(sources) == len(targets)
-        for source, target in tqdm(zip(sources, targets), desc="Reading", total=len(sources)):
+    for split in sizes.keys():
+        subset = dataset[split]
+        for item in subset:
             instances.append(
                 DataInstance(
-                    inputs=source.strip(),
-                    outputs=target.strip(),
+                    inputs=item["question"].strip().strip("-"),
+                    outputs=item["solutions"].strip().strip("[").strip("]").strip("\""),
                     split=split,
                     idx=str(global_idx)
                 )
@@ -2305,21 +2291,106 @@ def read_apps(data_dir):
     return instances, sizes
 
 
-def read_py_torrent(data_dir):
-    # https://github.com/fla-sil/PyTorrent
-    pass
+def read_py_torrent(data_dir, mode):
+    assert mode in ["sum", "gen"]
+    data_dir = os.path.join(data_dir, "py_torrent")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in sizes.keys():
+        subset_dir = os.path.join(data_dir, split)
+        print(f"Split: {split}")
+        for filename in os.listdir(subset_dir):
+            file_path = os.path.join(subset_dir, filename)
+            if os.path.isfile(file_path) and filename.endswith("jsonl"):
+                with open(file_path, mode="r", encoding="utf-8") as f:
+                    lines = f.readlines()
+                for line in tqdm(lines, total=len(lines), desc=f"Loading {filename} data"):
+                    js = json.loads(line.strip())
+                    code = " ".join(js["code_tokens"])
+                    nl = " ".join(js["docstring_tokens"])
+                    idx = js["path"]
+                    instances.append(
+                        DataInstance(
+                            inputs=code if mode == "sum" else nl,
+                            outputs=nl if mode == "gen" else code,
+                            split=split,
+                            idx=idx
+                        )
+                    )
+                    sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
 
 
-def read_jul_ce(data_dir):
-    # https://github.com/rajasagashe/juice
-    pass
+def read_juice(data_dir):
+    data_dir = os.path.join(data_dir, "juice")
+
+    instances = []
+    sizes = {
+        "valid": 0,
+        "test": 0,
+        "train": 0
+    }
+    for split in sizes.keys():
+        print(f"Reading {split} data")
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for line in tqdm(lines, total=len(lines), desc=f"Loading {split} data"):
+            js = json.loads(line.strip())
+            code = " ".join(js["code_tokens_clean"])
+            nl = " ".join(js["nl"])
+            idx = "#".join([js["metadata"]["repo"], js["metadata"]["path"]])
+            instances.append(
+                DataInstance(
+                    inputs=nl,
+                    outputs=code,
+                    split=split,
+                    idx=idx
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
 
 
-def read_notebook_cdg(data_dir):
-    # https://github.com/dakuo/haconvgnn
-    pass
+def read_code_search_net_gen(data_dir, subset):
+    assert subset in ["java", "python", "javascript", "php", "go", "ruby"]
+
+    data_dir = os.path.join(data_dir, "code_search_net_filtered", subset)
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in ["train", "valid", "test"]:
+        with open(os.path.join(data_dir, f"{split}.jsonl"), mode="r", encoding="utf-8") as f:
+            lines = f.readlines()
+        for idx, line in enumerate(tqdm(lines, total=len(lines), desc=f"Loading {split} data")):
+            js = json.loads(line.strip())
+            source = " ".join(js["docstring_tokens"])
+            target = " ".join(js["code_tokens"])
+            instances.append(
+                DataInstance(
+                    inputs=source,
+                    outputs=target,
+                    split=split,
+                    idx=js["path"]
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
 
 
-def read_boa(data_dir):
-    #
+def read_psb2(data_dir):
     pass

@@ -1,3 +1,4 @@
+import os.path
 import re
 
 from utils import *
@@ -17,7 +18,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "apps"
+            "code_search_net_gen_ruby"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -28,15 +29,15 @@ def create_meta_data(instances, sizes):
             "Generation"
         ],
         "BibTex": [
-            """@inproceedings{hendrycks2021measuring,
-  title={Measuring Coding Challenge Competence With APPS},
-  author={Hendrycks, Dan and Basart, Steven and Kadavath, Saurav and Mazeika, Mantas and Arora, Akul and Guo, Ethan and Burns, Collin and Puranik, Samir and He, Horace and Song, Dawn and others},
-  booktitle={Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2)},
-  year={2021}
+            """@article{husain2019codesearchnet,
+  title={Codesearchnet challenge: Evaluating the state of semantic code search},
+  author={Husain, Hamel and Wu, Ho-Hsiang and Gazit, Tiferet and Allamanis, Miltiadis and Brockschmidt, Marc},
+  journal={arXiv preprint arXiv:1909.09436},
+  year={2019}
 }"""
         ],
         "URL": [
-            "https://huggingface.co/datasets/codeparrot/apps",
+            "https://github.com/microsoft/CodeXGLUE/tree/main/Code-Text/code-to-text",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -60,16 +61,16 @@ def create_meta_data(instances, sizes):
             "Reasoning on natural language semantic"
         ],
         "Prompt": [
-            "Generate Python"
+            "Generate Ruby"
         ],
         "Definition": [
-            "In this task, your task is to answer the given natural langauge description of a programming problem, your answer must be written in Python."
+            "Given a natural language description, your task is to generate the correct Ruby method."
         ],
         "Input_language": [
             "Natural Language -> English"
         ],
         "Output_language": [
-            "Programming Language -> Python"
+            "Programming Language -> Ruby"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -117,13 +118,16 @@ def create_meta_data(instances, sizes):
 def write_task(meta, data, task_dir):
 
     max_task_id = 0
-    for file_name in os.listdir(task_dir):
-        file_path = os.path.join(task_dir, file_name)
-        if os.path.isfile(file_path) and file_name.endswith(".json"):
-            m = re.match(r"task_(\d\d\d)_.*", file_name)
-            task_id = int(m.group(1))
-            if task_id > max_task_id:
-                max_task_id = task_id
+    if not os.path.exists(task_dir):
+        os.makedirs(task_dir)
+    else:
+        for file_name in os.listdir(task_dir):
+            file_path = os.path.join(task_dir, file_name)
+            if os.path.isfile(file_path) and file_name.endswith(".json"):
+                m = re.match(r"task_(\d\d\d)_.*", file_name)
+                task_id = int(m.group(1))
+                if task_id > max_task_id:
+                    max_task_id = task_id
 
     source = meta["Source"][0].lower()
     category = meta["Type"][0].lower()
@@ -157,8 +161,9 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_apps(data_dir)
+    instances, sizes = read_code_search_net_gen(data_dir, subset="ruby")
     meta, data = create_meta_data(instances, sizes)
+    print("Writing meta and data files")
     write_task(meta, data, task_dir)
 
 
