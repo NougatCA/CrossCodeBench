@@ -19,6 +19,7 @@ def print_dict(d):
 
 def main(root):
 
+    num_task = 0
     total_sizes = []
     type_to_count = {}
     category_to_count = {}
@@ -33,6 +34,7 @@ def main(root):
     for file_name in os.listdir(root):
         if file_name.endswith(".meta.json"):
             print(file_name)
+            num_task += 1
             with open(os.path.join(root, file_name), mode="r", encoding="utf-8") as f:
                 data = json.load(f)
                 # total size
@@ -63,6 +65,7 @@ def main(root):
     avg_total_size = np.mean(total_sizes)
 
     print("-" * 50)
+    print(f"Total number of task: {num_task}")
     print(f"Avg. total size: {avg_total_size}")
     print("-" * 50)
     print("Type to count:")
