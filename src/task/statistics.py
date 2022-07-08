@@ -69,7 +69,7 @@ def main(root):
     print("-" * 50)
     print(f"Total number of task: {num_task}")
     print(f"Avg. total size: {avg_total_size}")
-    print(f"Medium size: {median_size}")
+    print(f"Median: {median_size}")
     print("-" * 50)
     print("Type to count:")
     print_dict(type_to_count)
