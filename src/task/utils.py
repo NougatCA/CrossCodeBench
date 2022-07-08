@@ -2392,5 +2392,68 @@ def read_code_search_net_gen(data_dir, subset):
     return instances, sizes
 
 
-def read_psb2(data_dir):
-    pass
+def read_fix_eval(data_dir, lang):
+    assert lang in ["java", "python"]
+    data_dir = os.path.join(data_dir, "fix_eval", lang, "processed")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in sizes.keys():
+        with open(os.path.join(data_dir, f"src_{split}.{lang}-{lang}.{lang}"), mode="r", encoding="utf-8") as src_f, \
+             open(os.path.join(data_dir, f"tgt_{split}.{lang}-{lang}.{lang}"), mode="r", encoding="utf-8") as tgt_f, \
+             open(os.path.join(data_dir, f"{split}.{lang}-{lang}.id"), mode="r", encoding="utf-8") as idx_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+            indices = idx_f.readlines()
+        assert len(sources) == len(targets) == len(indices)
+        for idx, source, target in tqdm(zip(indices, sources, targets), desc="Reading", total=len(sources)):
+            instances.append(
+                DataInstance(
+                    inputs=source.strip(),
+                    outputs=target.strip(),
+                    split=split,
+                    idx=idx.strip()
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes
+
+
+def read_fix_eval_verdict(data_dir, lang):
+    assert lang in ["java", "python"]
+    data_dir = os.path.join(data_dir, "fix_eval", lang, "processed_with_verdict")
+
+    instances = []
+    sizes = {
+        "train": 0,
+        "valid": 0,
+        "test": 0
+    }
+    for split in sizes.keys():
+        with open(os.path.join(data_dir, f"src_{split}.{lang}-{lang}.{lang}"), mode="r", encoding="utf-8") as src_f, \
+             open(os.path.join(data_dir, f"tgt_{split}.{lang}-{lang}.{lang}"), mode="r", encoding="utf-8") as tgt_f, \
+             open(os.path.join(data_dir, f"{split}.{lang}-{lang}.id"), mode="r", encoding="utf-8") as idx_f:
+            sources = src_f.readlines()
+            targets = tgt_f.readlines()
+            indices = idx_f.readlines()
+        assert len(sources) == len(targets) == len(indices)
+        for idx, source, target in tqdm(zip(indices, sources, targets), desc="Reading", total=len(sources)):
+            source, verdict = source.strip().split("verdict:")
+            instances.append(
+                DataInstance(
+                    inputs=[source.strip(), verdict.strip()],
+                    outputs=target.strip(),
+                    split=split,
+                    idx=idx.strip()
+                )
+            )
+            sizes[split] += 1
+    assert sum(sizes.values()) == len(instances)
+    sizes["total"] = len(instances)
+    return instances, sizes

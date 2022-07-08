@@ -7,6 +7,8 @@ fields_to_summary = [
     "Contributors",
     "Source",
     "Type",
+    # "BibTex",
+    "URL",
     "Reasoning",
     "Prompt",
     "Categories",
@@ -41,7 +43,8 @@ def main():
                         if isinstance(value, list):
                             if len(value) == 0:
                                 print(f"WARNING: {file_name}: empty field: '{field}'")
-                            value = value[0]
+                            else:
+                                value = value[0]
                         try:
                             value = str(value)
                             summary.append(value)

@@ -18,7 +18,7 @@ def create_meta_data(instances, sizes):
         ],
         # dataset, task name
         "Source": [
-            "code_search_net_gen_ruby"
+            "fix_eval_verdict_python"
         ],
         # Classification, Binary/Multi-label, Pairwise
         # Translation
@@ -29,15 +29,15 @@ def create_meta_data(instances, sizes):
             "Generation"
         ],
         "BibTex": [
-            """@article{husain2019codesearchnet,
-  title={Codesearchnet challenge: Evaluating the state of semantic code search},
-  author={Husain, Hamel and Wu, Ho-Hsiang and Gazit, Tiferet and Allamanis, Miltiadis and Brockschmidt, Marc},
-  journal={arXiv preprint arXiv:1909.09436},
-  year={2019}
+            """@article{haque2022fixeval,
+  title={FixEval: Execution-based Evaluation of Program Fixes for Competitive Programming Problems},
+  author={Haque, Md Mahim Anjum and Ahmad, Wasi Uddin and Lourentzou, Ismini and Brown, Chris},
+  journal={arXiv preprint arXiv:2206.07796},
+  year={2022}
 }"""
         ],
         "URL": [
-            "https://github.com/microsoft/CodeXGLUE/tree/main/Code-Text/code-to-text",
+            "https://github.com/mahimanzum/fixeval",
         ],
         # Detection -> Defect/Clone Detection
         # Fill in the blank -> Exception Type
@@ -49,7 +49,7 @@ def create_meta_data(instances, sizes):
         # Generation -> Commit Message
         # Generation -> Program Synthesis
         "Categories": [
-            "Code Generation"
+            "Code Modification -> Bug Fixing"
         ],
         # code defect
         # code semantic similarity
@@ -58,19 +58,25 @@ def create_meta_data(instances, sizes):
         # natural language and code semantic similarity
         # variable type
         "Reasoning": [
-            "Reasoning on natural language semantic"
+            "Reasoning on code defect"
         ],
         "Prompt": [
-            "Generate Ruby"
+            "Generate fixed code"
         ],
         "Definition": [
-            "Given a natural language description, your task is to generate the correct Ruby method."
+            "Given a wrong competitive programming submission written in Python and the associated verdict, your task is to generate "
+            "the corresponding accepted submission. Note that a wrong submission is the submission which fails to "
+            "pass all test cases, or exceeds the time and memory specifications, etc. "
+            "And the verdict is the type of error to which the failed commit belongs, such as Wrong Answer, Time Limit Exceeded, etc. "
+            "And a submission is accepted when "
+            "it is a feasible solution that passes all test cases and satisfies specific time and memory complexity requirements."
         ],
         "Input_language": [
+            "Programming Language -> Python",
             "Natural Language -> English"
         ],
         "Output_language": [
-            "Programming Language -> Ruby"
+            "Programming Language -> Python"
         ],
         "Instruction_language": [
             "Natural Language -> English"
@@ -87,7 +93,7 @@ def create_meta_data(instances, sizes):
         # API
         # Commit message
         "Domains": [
-            "Code"
+            "Code defect"
         ],
         "Instance_number": [
             sizes
@@ -161,7 +167,7 @@ def main():
     task_dir = "../../tasks/"
     data_dir = "../../datasets/"
 
-    instances, sizes = read_code_search_net_gen(data_dir, subset="ruby")
+    instances, sizes = read_fix_eval_verdict(data_dir, lang="python")
     meta, data = create_meta_data(instances, sizes)
     print("Writing meta and data files")
     write_task(meta, data, task_dir)

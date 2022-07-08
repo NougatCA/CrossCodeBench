@@ -47,8 +47,9 @@ def main(root):
                 category = data["Categories"][0]
                 category_to_count = update_or_create_count(category, category_to_count)
                 # reasoning on
-                reason = data["Reasoning"][0]
-                reason_to_count = update_or_create_count(reason, reason_to_count)
+                if len(data["Reasoning"]) > 0:
+                    reason = data["Reasoning"][0]
+                    reason_to_count = update_or_create_count(reason, reason_to_count)
                 # input and output language
                 input_lang = data["Input_language"]
                 output_lang = data["Output_language"]
@@ -59,14 +60,16 @@ def main(root):
                     update_or_create_count(out_lang, output_lang_to_count)
                     update_or_create_count(out_lang, lang_to_count)
                 # domain
-                domain = data["Domain"][0]
+                domain = data["Domains"][0]
                 domain_to_count = update_or_create_count(domain, domain_to_count)
 
     avg_total_size = np.mean(total_sizes)
+    median_size = np.median(total_sizes)
 
     print("-" * 50)
     print(f"Total number of task: {num_task}")
     print(f"Avg. total size: {avg_total_size}")
+    print(f"Medium size: {median_size}")
     print("-" * 50)
     print("Type to count:")
     print_dict(type_to_count)
