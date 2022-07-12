@@ -11,16 +11,11 @@ def add_args(parser: ArgumentParser):
                         choices=configs.MODEL_ID_TO_NAMES.keys(),
                         help="Initialization model.")
 
-    # task, dataset and subset
-    parser.add_argument("--task", type=str, default="defect",
-                        choices=configs.TASK_TO_DATASET.keys(),
-                        help="Task name.")
-    parser.add_argument("--dataset", type=str, default=None,
-                        help="Dataset name, leave empty for default.")
-    parser.add_argument("--subset", type=str, default=None,
-                        help="The subset name, if any.")
-    parser.add_argument("--data_dir", type=str, default="../datasets",
-                        help="The directory to store datasets.")
+    # task
+    parser.add_argument("--task_dir", type=str, default="../../tasks",
+                        help="The directory where tasks store.")
+    parser.add_argument("--task_split_config", type=str, default="default",
+                        help="The task split configuration, see `../../tasks/split/` for details.")
 
     # train, valid and test procedure
     parser.add_argument("--only_test", action="store_true", default=False,
