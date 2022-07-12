@@ -11,7 +11,7 @@ import numpy as np
 import wandb
 
 import configs
-from args import add_args, check_args, set_task_hyper_parameters
+from args import add_args, check_args
 from utils import get_run_name, get_short_run_name
 from run_tuning import run_tuning
 
@@ -26,7 +26,6 @@ def main():
 
     # check args
     check_args(args)
-    set_task_hyper_parameters(args)
 
     # prepare some preliminary arguments
     if args.run_name is None:
@@ -98,7 +97,7 @@ def main():
     # init wandb
     with open("../wandb_api.key", mode="r", encoding="utf-8") as f:
         os.environ["WANDB_API_KEY"] = f.read().strip()
-    run = wandb.init(project="CodePTM_Evaluation",
+    run = wandb.init(project="Code-Instructions",
                      tags=[token for token in
                            [args.model_type, args.model, args.task_type, args.task, args.dataset, args.subset]
                            if token is not None and token != ""],

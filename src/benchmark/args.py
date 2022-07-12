@@ -27,12 +27,15 @@ def add_args(parser: ArgumentParser):
                         help="Whether to only perform testing procedure.")
 
     # hyper parameters
+    parser.add_argument("--max_train_steps", type=int, default=None,
+                        help="If > 0: set total number of training steps to perform. Override num_train_epochs.")
     parser.add_argument("--num_epochs", type=int, default=None,
                         help="Number of total training epochs.")
     parser.add_argument("--train_batch_size", type=int, default=None,
                         help="Size of training batch, per device.")
     parser.add_argument("--eval_batch_size", type=int, default=None,
                         help="Size of validation/testing batch, per device.")
+
     parser.add_argument("--max_source_length", type=int, default=None,
                         help="The maximum total source sequence length after tokenization. Sequences longer "
                              "than this will be truncated, sequences shorter will be padded.")
@@ -42,12 +45,11 @@ def add_args(parser: ArgumentParser):
     parser.add_argument("--max_target_length", type=int, default=None,
                         help="The maximum total target sequence length after tokenization. Sequences longer "
                              "than this will be truncated, sequences shorter will be padded.")
+
     parser.add_argument('--gradient_accumulation_steps', type=int, default=1,
                         help="Number of updates steps to accumulate before performing a backward/update pass.")
     parser.add_argument("--learning_rate", type=float, default=None,
                         help="The initial learning rate for Adam.")
-    parser.add_argument("--num_beams", type=int, default=10,
-                        help="beam size for beam search.")
     parser.add_argument("--weight_decay", type=float, default=0.0,
                         help="Weight deay if we apply some.")
     parser.add_argument("--adam_epsilon", type=float, default=1e-8,
@@ -56,16 +58,18 @@ def add_args(parser: ArgumentParser):
                         help="Max gradient norm, 0 to disable.")
     parser.add_argument("--num_warmup_steps", type=int, default=None,
                         help="Linear warmup over warmup_steps.")
-    parser.add_argument("--patience", type=int, default=None,
-                        help="Early stopping patience.")
-    parser.add_argument("--random_seed", type=int, default=42,
-                        help="Random seed, -1 to disable.")
     parser.add_argument("--lr_scheduler_type", type=SchedulerType, default="linear",
                         help="The scheduler type to use.",
                         choices=["linear", "cosine", "cosine_with_restarts", "polynomial",
                                  "constant", "constant_with_warmup"])
+
+    parser.add_argument("--num_beams", type=int, default=10,
+                        help="beam size for beam search.")
     parser.add_argument("--label_smoothing_factor", type=float, default=0.0,
                         help="Label smoothing factor.")
+
+    parser.add_argument("--random_seed", type=int, default=42,
+                        help="Random seed, -1 to disable.")
 
     # environment
     parser.add_argument("--cuda_visible_devices", type=str, default=None,
@@ -76,9 +80,7 @@ def add_args(parser: ArgumentParser):
                         choices=["no", "fp16", "bf16"],
                         help="Mixed precision option, chosen from `no`, `fp16`, `bf16`")
 
-    # limitations
-    parser.add_argument("--max_train_steps", type=int, default=None,
-                        help="If > 0: set total number of training steps to perform. Override num_train_epochs.")
+    # ablation
     parser.add_argument("--training_sample", type=float, default=None,
                         help="Whether to sample a specific ratio (when between 0 and 1) or number (when >=0) "
                              "of training instance for training.")
