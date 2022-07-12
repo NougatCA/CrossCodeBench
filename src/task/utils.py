@@ -3,6 +3,7 @@ import os
 import json
 from tqdm import tqdm
 from typing import Union
+import re
 
 
 @dataclass
@@ -11,6 +12,18 @@ class DataInstance:
     outputs: Union[str, list[str]]
     split: str
     idx: str
+
+
+def walk_tasks(task_dir):
+    assert os.path.isdir(task_dir)
+    for file_name in os.listdir(task_dir):
+        file_path = os.path.join(task_dir, file_name)
+        if file_name.endswith(".meta.json") and os.path.isfile(file_path):
+            task_name = re.sub(r".meta.json$", "", file_name)
+            data_file_name = f"{task_name}.data.json"
+            data_file_path = os.path.join(task_dir, data_file_name)
+            assert os.path.isfile(data_file_path), f"The data file of task `{task_name}` not found."
+            yield file_name
 
 
 def read_devign(data_dir):
