@@ -23,7 +23,7 @@ def walk_tasks(task_dir):
             data_file_name = f"{task_name}.data.json"
             data_file_path = os.path.join(task_dir, data_file_name)
             assert os.path.isfile(data_file_path), f"The data file of task `{task_name}` not found."
-            yield file_name
+            yield task_name
 
 
 def read_devign(data_dir):
