@@ -14,4 +14,4 @@ def run_tuning(args, accelerator, run):
 
     # prepare data for training and validation
     if not args.only_test:
-        pass
+        tune_data, tune_dataloader
