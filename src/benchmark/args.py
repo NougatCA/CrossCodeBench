@@ -8,8 +8,10 @@ def add_args(parser: ArgumentParser):
 
     # model
     parser.add_argument("--init_model", type=str, default="codet5",
-                        choices=configs.MODEL_ID_TO_NAMES.keys(),
+                        choices=configs.model_to_ids.keys(),
                         help="Initialization model.")
+    parser.add_argument("--random_init", type=bool, action="store_true", default=False,
+                        help="Random initialize the model.")
 
     # task
     parser.add_argument("--task_dir", type=str, default="../../tasks",
@@ -18,7 +20,7 @@ def add_args(parser: ArgumentParser):
                         help="The task split configuration, see `../../tasks/split/` for details.")
 
     # train, valid and test procedure
-    parser.add_argument("--only_test", action="store_true", default=False,
+    parser.add_argument("--only_eval", action="store_true", default=False,
                         help="Whether to only perform testing procedure.")
 
     # hyper parameters
