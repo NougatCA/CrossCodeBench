@@ -36,11 +36,11 @@ def add_args(parser: ArgumentParser):
     parser.add_argument("--max_source_length", type=int, default=None,
                         help="The maximum total source sequence length after tokenization. Sequences longer "
                              "than this will be truncated, sequences shorter will be padded.")
-    parser.add_argument("--max_source_pair_length", type=int, default=None,
-                        help="The maximum total source pair sequence length after tokenization. Sequences longer "
-                             "than this will be truncated, sequences shorter will be padded.")
     parser.add_argument("--max_target_length", type=int, default=None,
                         help="The maximum total target sequence length after tokenization. Sequences longer "
+                             "than this will be truncated, sequences shorter will be padded.")
+    parser.add_argument("--max_instruction_length", type=int, default=None,
+                        help="The maximum total instruction sequence length after tokenization. Sequences longer "
                              "than this will be truncated, sequences shorter will be padded.")
 
     parser.add_argument('--gradient_accumulation_steps', type=int, default=1,
@@ -78,9 +78,8 @@ def add_args(parser: ArgumentParser):
                         help="Mixed precision option, chosen from `no`, `fp16`, `bf16`")
 
     # ablation
-    parser.add_argument("--training_sample", type=float, default=None,
-                        help="Whether to sample a specific ratio (when between 0 and 1) or number (when >=0) "
-                             "of training instance for training.")
+    parser.add_argument("--max_sample_per_task", type=int, default=10000,
+                        help="Sample a number of training instance per task for training.")
     parser.add_argument("--train_from_scratch", action="store_true", default=False,
                         help="Whether to fine-tune from scratch, will not load pre-trained models.")
 
