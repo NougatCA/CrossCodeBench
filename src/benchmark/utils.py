@@ -168,3 +168,32 @@ def build_model_tokenizer(args) -> (PreTrainedModel, PreTrainedTokenizer):
     logger.debug(f"Layer-wise parameters:\n{layer_wise_parameters(model)}")
 
     return model, tokenizer
+
+
+def postprocess_results(result_dict: dict, major_metric=None):
+    """
+    Post-processes the evaluation result dict, such as generates result table and extracts major score.
+
+    Args:
+        result_dict (dict):
+            A dict mapping from metric name to its score.
+        major_metric (str, optional, defaults to None):
+            The major metric name, if given, will return the major score.
+    Returns:
+        result_table (PrettyTable):
+            A table of results.
+        major_score (Union[None, float])
+            The score corresponds to the major metric, `None` if `major_metric` is `None`.
+    """
+    results_table = PrettyTable()
+    results_table.field_names = ["Metric", "Score"]
+    results_table.align["Metric"] = "c"
+    results_table.align["Score"] = "l"
+    major_score = None
+    for metric, score in result_dict.items():
+        if major_metric and metric.endswith(major_metric):
+            results_table.add_row([f"**{metric}**", score])
+            major_score = score
+        else:
+            results_table.add_row([metric, str(score)])
+    return results_table, major_score
