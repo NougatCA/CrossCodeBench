@@ -63,6 +63,9 @@ def load_instances(args, split):
             # sample
             if len(task_instances) > args.max_sample_per_task:
                 task_instances = random.sample(task_instances, k=args.max_sample_per_task)
+            # task id
+            task_id = task_name.split("_")[1]
+            meta["task_id"] = task_id
 
             for instance in task_instances:
                 instance.append(
@@ -87,10 +90,50 @@ def load_instances(args, split):
 
 def convert_instance_to_feature(instance: DataInstance,
                                 tokenizer,
+                                use_prompt,
+                                num_pos_examples,
+                                num_neg_examples,
                                 max_source_length,
                                 max_target_length,
                                 max_instruction_length) -> InputFeature:
-    pass
+    def convert_inputs_to_seq(inputs: Union[str, List[str]]):
+        return inputs if isinstance(inputs, str) else " ||| ".join(instance.inputs)
+
+    if use_prompt:
+        input_txt = "{}: {}".format(instance.meta["prompt"][0], convert_inputs_to_seq(instance.inputs))
+        input_ids = tokenizer.encode(input_txt,
+                                     padding="max_length",
+                                     max_length=max_instruction_length + max_source_length,
+                                     truncation=True)
+    else:
+        instruction_keys = ["task_id", "Definition", "Type", "Categories", "Reasoning",
+                            "Input_language", "Output_language", "Domains"]
+        instruction_seqs = []
+        for key in instruction_keys:
+            values = instance.meta[key]
+            item = "{}: {}".format(key, ", ".join(values))
+            instruction_seqs.append(item)
+        input_txt = "; ".join(instruction_seqs)
+        if num_pos_examples > 0:
+            pos_examples = random.sample(instance.meta["Positive Examples"], k=num_pos_examples)
+            for pos_id, pos_example in enumerate(pos_examples):
+                input_txt += "; Positive Example {} - input: {}; output: {}, explanation: {}".format(
+                    pos_id + 1,
+                    convert_inputs_to_seq(pos_example["input"]),
+                    convert_inputs_to_seq(pos_example["output"]),
+                    pos_example["reason"])
+        if num_neg_examples > 0:
+            neg_examples = random.sample(instance.meta["Negative Examples"], k=num_neg_examples)
+            for neg_id, neg_example in enumerate(neg_examples):
+                input_txt += "; Negative Example {} - input: {}; output: {}, explanation: {}".format(
+                    neg_id + 1,
+                    convert_inputs_to_seq(neg_example["input"]),
+                    convert_inputs_to_seq(neg_example["output"]),
+                    neg_example["reason"])
+
+        input_txt += f"; Now complete the following example − input {convert_inputs_to_seq(instance.inputs)}; output:"
+
+
 
 
 
@@ -100,9 +143,14 @@ def create_dataset(args, instances, tokenizer):
     logger.info(f"Start encoding instances into features")
     processes = multiprocessing.cpu_count()
     encode_func = partial(convert_instance_to_feature,
+                          instances=instances,
                           tokenizer=tokenizer,
+                          use_prompt=args.use_prompt,
+                          num_pos_examples=args.num_pos_examples,
+                          num_neg_examples=args.num_neg_examples,
                           max_source_length=args.max_source_length,
-                          max_target_length=args.max_target_length)
+                          max_target_length=args.max_target_length,
+                          max_instruction_length=args.max_instruction_length)
     if processes > 1:
         with multiprocessing.Pool(processes=processes) as p:
             features = list(p.map(encode_func, tqdm(instances, total=len(instances), desc="Encoding")))

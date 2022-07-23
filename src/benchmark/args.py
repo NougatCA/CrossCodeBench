@@ -83,6 +83,16 @@ def add_args(parser: ArgumentParser):
     parser.add_argument("--train_from_scratch", action="store_true", default=False,
                         help="Whether to fine-tune from scratch, will not load pre-trained models.")
 
+    # instruction & prompt
+    parser.add_argument("--use_prompt", action="store_true", type=bool, default=False,
+                        help="Whether to use prompt rather than instruction.")
+    parser.add_argument("--num_pos_examples", type=int, default=2,
+                        choices=[0, 1, 2, 3, 4],
+                        help="Number of positive examples in the instructions.")
+    parser.add_argument("--num_neg_examples", type=int, default=2,
+                        choices=[0, 1, 2, 3, 4],
+                        help="Number of negative examples in the instructions.")
+
     # outputs and savings
     parser.add_argument("--run_name", type=str, default=None,
                         help="Unique name of current running, will be automatically set if it is None.")
