@@ -51,8 +51,10 @@ def load_instances(args, split):
             logger.debug(f"Start loading '{task_name}'.")
             # try to load meta and data from json file
             try:
-                with open(os.path.join(args.task_dir, f"{task_name}.meta.json"), mode="r", encoding="utf-8") as meta_f, \
-                        open(os.path.join(args.task_dir, f"{task_name}.data.json"), mode="r", encoding="utf-8") as data_f:
+                with open(os.path.join(args.task_dir, f"{task_name}.meta.json"),
+                          mode="r", encoding="utf-8") as meta_f, \
+                        open(os.path.join(args.task_dir, f"{task_name}.data.json"),
+                             mode="r", encoding="utf-8") as data_f:
                     meta = json.load(meta_f)
                     data = json.load(data_f)
             except MemoryError:
@@ -113,11 +115,11 @@ def convert_instance_to_feature(instance: DataInstance,
             values = instance.meta[key]
             item = "{}: {}".format(key, ", ".join(values))
             instruction_seqs.append(item)
-        input_txt = "; ".join(instruction_seqs)
+        instruction_txt = "; ".join(instruction_seqs)
         if num_pos_examples > 0:
             pos_examples = random.sample(instance.meta["Positive Examples"], k=num_pos_examples)
             for pos_id, pos_example in enumerate(pos_examples):
-                input_txt += "; Positive Example {} - input: {}; output: {}, explanation: {}".format(
+                instruction_txt += "; Positive Example {} - input: {}; output: {}, explanation: {}".format(
                     pos_id + 1,
                     convert_inputs_to_seq(pos_example["input"]),
                     convert_inputs_to_seq(pos_example["output"]),
@@ -125,16 +127,33 @@ def convert_instance_to_feature(instance: DataInstance,
         if num_neg_examples > 0:
             neg_examples = random.sample(instance.meta["Negative Examples"], k=num_neg_examples)
             for neg_id, neg_example in enumerate(neg_examples):
-                input_txt += "; Negative Example {} - input: {}; output: {}, explanation: {}".format(
+                instruction_txt += "; Negative Example {} - input: {}; output: {}, explanation: {}".format(
                     neg_id + 1,
                     convert_inputs_to_seq(neg_example["input"]),
                     convert_inputs_to_seq(neg_example["output"]),
                     neg_example["reason"])
 
-        input_txt += f"; Now complete the following example − input {convert_inputs_to_seq(instance.inputs)}; output:"
+        instruction_txt += f"; Now complete the following example − input: "
 
+        instruction_ids = tokenizer.encode(instruction_txt,
+                                           padding="max_length",
+                                           max_length=max_instruction_length,
+                                           truncation=True,
+                                           add_special_tokens=False)
 
+        source_txt = f"{convert_inputs_to_seq(instance.inputs)}; output:"
+        source_ids = tokenizer.encode(source_txt,
+                                      padding="max_length",
+                                      max_length=max_source_length,
+                                      truncation=True)
 
+        input_ids = instruction_ids + source_ids
+
+    decoder_input_ids = tokenizer.encode(convert_inputs_to_seq(instance.outputs),
+                                         padding="max_length",
+                                         max_length=max_target_length,
+                                         truncation=True)
+    return InputFeature(input_ids=input_ids, decoder_input_ids=decoder_input_ids)
 
 
 def create_dataset(args, instances, tokenizer):

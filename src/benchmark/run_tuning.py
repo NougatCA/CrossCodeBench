@@ -1,4 +1,3 @@
-from accelerate import Accelerator
 import torch
 from torch.optim import AdamW
 from transformers import get_scheduler
@@ -11,6 +10,10 @@ import json
 
 from utils import build_model_tokenizer, LabelSmoother, postprocess_results
 from data import prepare_data
+from metrics.exact_match import exact_match
+from metrics.google_bleu import google_bleu
+from metrics.smooth_bleu import smooth_bleu
+from metrics.rouge import rouge_l
 
 
 logger = logging.getLogger(__name__)
@@ -170,10 +173,10 @@ def run_tuning(args, accelerator, run):
             num_steps += 1
 
     # compute bleu, em, rouge-l, etc.
-    results.update(exact_match(preds=all_preds, golds=all_golds, prefix=split))
-    results.update(google_bleu(preds=all_preds, golds=all_golds, prefix=split))
-    results.update(smooth_bleu(preds=all_preds, golds=all_golds, prefix=split))
-    results.update(rouge_l(preds=all_preds, golds=all_golds, prefix=split))
+    results.update(exact_match(preds=all_preds, golds=all_golds))
+    results.update(google_bleu(preds=all_preds, golds=all_golds))
+    results.update(smooth_bleu(preds=all_preds, golds=all_golds))
+    results.update(rouge_l(preds=all_preds, golds=all_golds))
 
     # save predictions and golds
     with open(os.path.join(eval_dir, "predictions.txt"), mode="w", encoding="utf-8") as pred_f, \
@@ -183,10 +186,10 @@ def run_tuning(args, accelerator, run):
             gold_f.write(gold + "\n")
 
     if len(loss_list) > 0:
-        results.update({f"{split}_loss": np.mean(loss_list)})
+        results.update({f"eval_loss": np.mean(loss_list)})
     results.update({
-        f"{split}_num_examples": num_examples,
-        f"{split}_num_steps": num_steps
+        f"eval_num_examples": num_examples,
+        f"eval_num_steps": num_steps
     })
 
     # save results
