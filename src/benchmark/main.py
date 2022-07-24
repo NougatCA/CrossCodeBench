@@ -95,12 +95,9 @@ def main():
     logger.debug("Configurations:\n{}".format(config_table))
 
     # init wandb
-    with open("../wandb_api.key", mode="r", encoding="utf-8") as f:
+    with open("wandb_api.key", mode="r", encoding="utf-8") as f:
         os.environ["WANDB_API_KEY"] = f.read().strip()
     run = wandb.init(project="Code-Instructions",
-                     tags=[token for token in
-                           [args.model_type, args.model, args.task_type, args.task, args.dataset, args.subset]
-                           if token is not None and token != ""],
                      name=args.short_run_name,
                      mode=args.wandb_mode,
                      config=vars(args))

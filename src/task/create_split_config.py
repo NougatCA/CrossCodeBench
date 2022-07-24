@@ -4,10 +4,20 @@ import os
 from utils import walk_tasks
 
 
-def category_task(task_dir, task_name):
+def category_task_translation(task_dir, task_name):
     with open(os.path.join(task_dir, f"{task_name}.meta.json"), mode="r", encoding="utf-8") as f:
         meta = json.load(f)
     if meta["Type"][0] == "Translation":
+        return "eval"
+    else:
+        return "tune"
+
+
+def category_task_ruby(task_dir, task_name):
+    with open(os.path.join(task_dir, f"{task_name}.meta.json"), mode="r", encoding="utf-8") as f:
+        meta = json.load(f)
+    all_lang = " ".join(meta["Input_language"] + meta["Output_language"])
+    if "Ruby" in all_lang:
         return "eval"
     else:
         return "tune"
@@ -23,14 +33,14 @@ def write_config(task_dir, splits_to_tasks, config_name):
 
 def main():
     task_dir = "../../tasks/"
-    config_name = "translation"
+    config_name = "ruby"
     # split to task name
     splits_to_tasks = {
         "tune": [],
         "eval": []
     }
     for task_name in walk_tasks(task_dir):
-        split = category_task(task_dir, task_name)
+        split = category_task_ruby(task_dir, task_name)
         assert split in ["tune", "eval"]
         splits_to_tasks[split].append(task_name)
 

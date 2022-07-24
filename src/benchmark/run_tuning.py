@@ -25,7 +25,7 @@ def run_tuning(args, accelerator, run):
     model, tokenizer = build_model_tokenizer(args)
 
     # prepare data for training
-    if not args.only_test:
+    if not args.only_eval:
         tune_dataset, tune_dataloader = prepare_data(args, split="tune", tokenizer=tokenizer)
         logger.info(f"Data is loaded and prepared")
 

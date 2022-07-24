@@ -63,14 +63,16 @@ def load_instances(args, split):
             # get the instances
             task_instances = data["Instances"]
             # sample
-            if len(task_instances) > args.max_sample_per_task:
+            if split == "tune" and len(task_instances) > args.max_sample_per_task:
                 task_instances = random.sample(task_instances, k=args.max_sample_per_task)
+            elif split == "eval" and len(task_instances) > args.max_eval_sample_per_task:
+                task_instances = random.sample(task_instances, k=args.max_eval_sample_per_task)
             # task id
             task_id = task_name.split("_")[1]
             meta["task_id"] = task_id
 
             for instance in task_instances:
-                instance.append(
+                instances.append(
                     DataInstance(
                         inputs=instance["input"],
                         outputs=instance["output"],
@@ -92,6 +94,7 @@ def load_instances(args, split):
 
 def convert_instance_to_feature(instance: DataInstance,
                                 tokenizer,
+                                no_verbalizer,
                                 use_prompt,
                                 num_pos_examples,
                                 num_neg_examples,
@@ -101,7 +104,12 @@ def convert_instance_to_feature(instance: DataInstance,
     def convert_inputs_to_seq(inputs: Union[str, List[str]]):
         return inputs if isinstance(inputs, str) else " ||| ".join(instance.inputs)
 
-    if use_prompt:
+    if no_verbalizer:
+        input_ids = tokenizer.encode(convert_inputs_to_seq(instance.inputs),
+                                     padding="max_length",
+                                     max_length=max_instruction_length + max_source_length,
+                                     truncation=True)
+    elif use_prompt:
         input_txt = "{}: {}".format(instance.meta["prompt"][0], convert_inputs_to_seq(instance.inputs))
         input_ids = tokenizer.encode(input_txt,
                                      padding="max_length",
@@ -162,8 +170,8 @@ def create_dataset(args, instances, tokenizer):
     logger.info(f"Start encoding instances into features")
     processes = multiprocessing.cpu_count()
     encode_func = partial(convert_instance_to_feature,
-                          instances=instances,
                           tokenizer=tokenizer,
+                          no_verbalizer=args.no_verbalizer,
                           use_prompt=args.use_prompt,
                           num_pos_examples=args.num_pos_examples,
                           num_neg_examples=args.num_neg_examples,

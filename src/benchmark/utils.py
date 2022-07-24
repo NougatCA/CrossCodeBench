@@ -96,14 +96,17 @@ class LabelSmoother:
 
 
 def get_run_name(args):
-    tokens = [args.model, args.task, args.dataset, args.subset,
-              f"bs{args.train_batch_size}", f"ep{args.num_epochs}",
+    short_name = get_short_run_name(args)
+    tokens = [short_name, f"bs{args.train_batch_size}", f"ep{args.num_epochs}",
               f"lr{args.learning_rate}", f"warmup{args.num_warmup_steps}"]
     return "_".join([token for token in tokens if token is not None and token != ""])
 
 
 def get_short_run_name(args):
-    tokens = [args.model, args.task, args.dataset, args.subset]
+    tokens = [args.init_model]
+    if args.random_init:
+        tokens.append("random")
+    tokens.append(args.task_split_config)
     return "_".join([token for token in tokens if token is not None and token != ""])
 
 
@@ -161,7 +164,7 @@ def build_model_tokenizer(args) -> (PreTrainedModel, PreTrainedTokenizer):
         else:
             raise ValueError(f"Model name `{args.model_name}` not supported.")
     else:
-        model = AutoModelForSeq2SeqLM(args.model_name)
+        model = AutoModelForSeq2SeqLM.from_pretrained(args.model_name)
     model.resize_token_embeddings(len(tokenizer))
     logger.info(f"Loaded model '{model.__class__.__name__}' from '{args.model_name}'")
     logger.info(f"Trainable parameters: {human_format(count_params(model))}")
