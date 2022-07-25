@@ -134,3 +134,4 @@ sample.py
 datasets/
 *.zip
 wandb_api.key
+outputs/
