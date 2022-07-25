@@ -51,7 +51,7 @@ class Tuner(Seq2SeqTrainer):
     def get_train_dataloader(self):
         return self.tune_dataloader
 
-    def get_test_dataloader(self):
+    def get_test_dataloader(self, test_dataset):
         return self.eval_dataloader
 
 

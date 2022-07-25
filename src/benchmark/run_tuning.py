@@ -125,9 +125,10 @@ def run_tuning(args, run):
     tuner.eval_dataloader = eval_dataloader
     tuner.compute_metrics = compute_eval_metrics
 
-    results = tuner.predict(metric_key_prefix='eval',
+    results = tuner.predict(test_dataset=eval_dataset,
+                            metric_key_prefix='eval',
                             max_length=args.max_target_length,
-                            num_beams=args.beam_width)
+                            num_beams=args.num_beams)
 
     metrics = results.metrics
     all_golds = metrics.pop("eval_golds")
