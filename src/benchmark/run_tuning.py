@@ -1,14 +1,14 @@
+from transformers import AutoConfig, AutoTokenizer, AutoModelForSeq2SeqLM, \
+    T5ForConditionalGeneration, PLBartForConditionalGeneration, Seq2SeqTrainingArguments, Seq2SeqTrainer, \
+    SchedulerType, IntervalStrategy
 import torch
-from torch.optim import AdamW
-from transformers import get_scheduler
 import logging
-import math
 from tqdm import tqdm
 import os
 import numpy as np
 import json
 
-from utils import build_model_tokenizer, LabelSmoother, postprocess_results
+from utils import postprocess_results, human_format, count_params, layer_wise_parameters, Tuner, LogStateCallBack
 from data import prepare_data
 from metrics.exact_match import exact_match
 from metrics.google_bleu import google_bleu
@@ -19,110 +19,83 @@ from metrics.rouge import rouge_l
 logger = logging.getLogger(__name__)
 
 
-def run_tuning(args, accelerator, run):
+def run_tuning(args, run):
     logger.info("=" * 20 + " LOADING " + "=" * 20)
 
-    model, tokenizer = build_model_tokenizer(args)
+    # load config
+    config = AutoConfig.from_pretrained(args.model_name)
+    logger.info(f"Loaded config '{config.__class__.__name__}' from '{args.model_name}'")
+    logger.debug(config)
+
+    # load tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+    args.pad_token_id = tokenizer.pad_token_id
+
+    logger.info(f"Loaded tokenizer '{tokenizer.__class__.__name__}' from '{args.model_name}', "
+                f"size: {len(tokenizer)}")
+    # logger.debug(f"Special symbols: {tokenizer.all_special_tokens}")
+
+    # load model
+    if args.random_init:
+        if "t5" in args.model_name:
+            model = T5ForConditionalGeneration(config)
+        elif "plbart" in args.model_name:
+            model = PLBartForConditionalGeneration(config)
+        else:
+            raise ValueError(f"Model name `{args.model_name}` not supported.")
+    else:
+        model = AutoModelForSeq2SeqLM.from_pretrained(args.model_name)
+    model.resize_token_embeddings(len(tokenizer))
+    logger.info(f"Loaded model '{model.__class__.__name__}' from '{args.model_name}'")
+    logger.info(f"Trainable parameters: {human_format(count_params(model))}")
+    logger.debug(f"Layer-wise parameters:\n{layer_wise_parameters(model)}")
 
     # prepare data for training
     if not args.only_eval:
         tune_dataset, tune_dataloader = prepare_data(args, split="tune", tokenizer=tokenizer)
         logger.info(f"Data is loaded and prepared")
 
+        tuning_args = Seq2SeqTrainingArguments(
+            output_dir=args.model_dir,
+            overwrite_output_dir=True,
+            do_train=True,
+            do_eval=False,
+            do_predict=True,
+            prediction_loss_only=False,
+            per_device_train_batch_size=args.train_batch_size,
+            per_device_eval_batch_size=args.eval_batch_size,
+            gradient_accumulation_steps=args.gradient_accumulation_steps,
+            learning_rate=args.learning_rate,
+            weight_decay=args.lr_decay_rate,
+            max_grad_norm=args.grad_clipping_norm,
+            num_train_epochs=args.num_epochs,
+            lr_scheduler_type=SchedulerType.LINEAR,
+            warmup_steps=args.warmup_steps,
+            logging_dir=args.tb_dir,
+            logging_strategy=IntervalStrategy.STEPS,
+            logging_steps=100,
+            save_strategy=IntervalStrategy.EPOCH,
+            save_total_limit=5,
+            seed=args.random_seed,
+            bf16=args.mixed_precision == "bf16",
+            fp16=args.mixed_precision == "fp16",
+            dataloader_drop_last=False,
+            run_name=args.run_name,
+            ignore_data_skip=False,
+            label_smoothing_factor=args.label_smoothing_factor,
+            report_to=["tensorboard", "wandb"],
+            dataloader_pin_memory=True)
+        tuner = Tuner(
+            tune_dataloader=tune_dataloader,
+            model=model,
+            args=tuning_args,
+            tokenizer=tokenizer,
+            data_collator=None,
+            callbacks=[LogStateCallBack()])
+        logger.info('Tuner is initialized')
+
         logger.info("=" * 20 + " TUNING " + "=" * 20)
-        # Optimizer
-        # Split weights in two groups, one with weight decay and the other not
-        no_decay = ["bias", "LayerNorm.weight"]
-        optimizer_grouped_parameters = [
-            {
-                "params": [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
-                "weight_decay": args.weight_decay,
-            },
-            {
-                "params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)],
-                "weight_decay": 0.0,
-            },
-        ]
-        optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
-
-        # Prepare everything with accelerator
-        model, optimizer, tune_dataloader = accelerator.prepare(model, optimizer, tune_dataloader)
-
-        num_update_steps_per_epoch = math.ceil(len(tune_dataloader) / args.gradient_accumulation_steps)
-        if args.max_train_steps is None:
-            args.max_train_steps = args.num_epochs * num_update_steps_per_epoch
-        else:
-            args.num_epochs = math.ceil(args.max_train_steps / num_update_steps_per_epoch)
-
-        # Scheduler and math around the number of training steps
-        lr_scheduler = get_scheduler(
-            name=args.lr_scheduler_type,
-            optimizer=optimizer,
-            num_warmup_steps=args.num_warmup_steps,
-            num_training_steps=args.max_train_steps,
-        )
-
-        # Label smoothing
-        if args.label_smoothing_factor != 0:
-            label_smoother = LabelSmoother(epsilon=args.label_smoothing_factor)
-        else:
-            label_smoother = None
-
-        total_batch_size = args.train_batch_size * args.num_gpus * args.gradient_accumulation_steps
-
-        logger.info("***** Running tuning *****")
-        logger.info(f"  Num examples = {len(tune_dataset)}")
-        logger.info(f"  Num Epochs = {args.num_epochs}")
-        logger.info(f"  Instantaneous batch size per device = {args.train_batch_size}")
-        logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
-        logger.info(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
-        logger.info(f"  Total optimization steps = {args.max_train_steps}")
-
-        completed_steps = 0
-        for epoch in range(args.num_epochs):
-            model.train()
-
-            train_bar = tqdm(tune_dataloader, total=len(tune_dataloader), desc=f"[epoch {epoch}, loss x.xxxx]")
-            for step, batch in enumerate(train_bar):
-                model_kwargs = {
-                    "input_ids": batch[0],
-                    "attention_mask": batch[0].ne(args.pad_token_id),
-                    "labels": batch[1],
-                    "decoder_attention_mask": batch[1].ne(args.pad_token_id)
-                }
-
-                if label_smoother is not None:
-                    labels = model_kwargs.pop("labels")
-                else:
-                    labels = None
-
-                outputs = model(**model_kwargs)
-
-                if labels is not None:
-                    loss = label_smoother(outputs, labels)
-                else:
-                    loss = outputs.loss
-
-                if args.num_gpus > 1:
-                    loss = loss.mean()
-
-                loss = loss / args.gradient_accumulation_steps
-                accelerator.backward(loss)
-                if args.max_grad_norm > 0:
-                    accelerator.clip_grad_norm_(model.parameters(), args.max_grad_norm)
-
-                if step % args.gradient_accumulation_steps == 0 or step == len(tune_dataloader) - 1:
-                    optimizer.step()
-                    lr_scheduler.step()
-                    optimizer.zero_grad()
-                    completed_steps += 1
-
-                    train_bar.set_description(f"[epoch {epoch}, loss {loss.item():.4f}]")
-                    run.log({"train_loss": loss.item(), "epoch": epoch})
-
-                if completed_steps >= args.max_train_steps:
-                    break
-
+        tuner.train()
         logger.info("End of tuning")
 
     logger.info("=" * 20 + " EVALUATING " + "=" * 20)
@@ -131,7 +104,6 @@ def run_tuning(args, accelerator, run):
     # load eval data
     logger.info(f"Start loading evaluation data")
     eval_dataset, eval_dataloader = prepare_data(args, split="eval", tokenizer=tokenizer)
-    model, test_dataloader = accelerator.prepare(model, eval_dataloader)
 
     # general statistics
     num_examples = 0
@@ -149,19 +121,16 @@ def run_tuning(args, accelerator, run):
         with torch.no_grad():
             input_ids, labels = batch
             attention_mask = input_ids.ne(tokenizer.pad_token_id)
-            generated_tokens = accelerator.unwrap_model(model).generate(
+            generated_tokens = model.generate(
                 input_ids,
                 attention_mask=attention_mask,
                 max_length=args.max_target_length,
                 num_beams=args.num_beams,
                 early_stopping=True
             )
-            generated_tokens = accelerator.pad_across_processes(generated_tokens,
-                                                                dim=1,
-                                                                pad_index=tokenizer.pad_token_id)
 
-            generated_tokens = accelerator.gather(generated_tokens).cpu().numpy()
-            labels = accelerator.gather(labels).cpu().numpy()
+            generated_tokens = generated_tokens.cpu().numpy()
+            labels = labels.cpu().numpy()
 
             decoded_preds = tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
             decoded_golds = tokenizer.batch_decode(labels, skip_special_tokens=True)

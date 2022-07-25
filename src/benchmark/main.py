@@ -5,7 +5,6 @@ import os
 import time
 import sys
 from prettytable import PrettyTable
-from accelerate import Accelerator
 import random
 import numpy as np
 import wandb
@@ -34,11 +33,12 @@ def main():
     args.run_name = "{}_{}".format(args.run_name, time.strftime("%Y%m%d_%H%M%S", time.localtime()))
 
     # outputs and savings
-    args.output_dir = os.path.join("..", "outputs", args.run_name)  # root of outputs/savings
+    args.output_dir = os.path.join("..", "..", "outputs", args.run_name)  # root of outputs/savings
     args.model_dir = os.path.join(args.output_dir, "models")  # dir of saving models
     args.eval_dir = os.path.join(args.output_dir, "evaluations")  # dir of saving evaluation results
-    args.run_dir = os.path.join(args.output_dir, "runs")  # dir of tracking running
-    for d in [args.model_dir, args.run_dir]:
+    args.tb_dir = os.path.join(args.output_dir, "runs")  # dir of tracking running with tensorboard
+    args.wandb_dir = os.path.join(args.output_dir, "wandb") # dir of tracking running with wandb
+    for d in [args.model_dir, args.eval_dir, args.tb_dir, args.wandb_dir]:
         if not os.path.exists(d):
             os.makedirs(d)
 
@@ -61,16 +61,8 @@ def main():
     # set distribution and mixed precision, using `accelerate` package
     os.environ['TOKENIZERS_PARALLELISM'] = "false"
     args.use_cuda = torch.cuda.is_available() and not args.no_cuda
-    if args.use_cuda:
-        if args.cuda_visible_devices is not None:
-            os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
-        accelerator = Accelerator(mixed_precision=args.mixed_precision)
-    else:
-        accelerator = Accelerator(cpu=True)
-    args.device = accelerator.device
-    args.num_gpus = accelerator.num_processes
-
-    logger.info(accelerator.state)
+    if args.use_cuda and args.cuda_visible_devices is not None:
+        os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
 
     # set random seed
     if args.random_seed > 0:
@@ -98,11 +90,12 @@ def main():
     with open("wandb_api.key", mode="r", encoding="utf-8") as f:
         os.environ["WANDB_API_KEY"] = f.read().strip()
     run = wandb.init(project="Code-Instructions",
+                     dir=args.wandb_dir,
                      name=args.short_run_name,
                      mode=args.wandb_mode,
                      config=vars(args))
 
-    run_tuning(args, accelerator, run)
+    run_tuning(args, run)
 
 
 if __name__ == "__main__":
