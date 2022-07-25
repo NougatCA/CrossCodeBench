@@ -49,11 +49,9 @@ def add_args(parser: ArgumentParser):
                         help="The initial learning rate for Adam.")
     parser.add_argument("--weight_decay", type=float, default=0.0,
                         help="Weight deay if we apply some.")
-    parser.add_argument("--adam_epsilon", type=float, default=1e-8,
-                        help="Epsilon for Adam optimizer.")
     parser.add_argument("--max_grad_norm", type=float, default=1.0,
                         help="Max gradient norm, 0 to disable.")
-    parser.add_argument("--num_warmup_steps", type=int, default=500,
+    parser.add_argument("--warmup_steps", type=int, default=500,
                         help="Linear warmup over warmup_steps.")
     parser.add_argument("--lr_scheduler_type", type=SchedulerType, default="linear",
                         help="The scheduler type to use.",

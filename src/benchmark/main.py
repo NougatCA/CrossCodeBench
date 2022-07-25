@@ -24,7 +24,7 @@ def main():
     args = parser.parse_args()
 
     # check args
-    check_args(args)
+    # check_args(args)
 
     # prepare some preliminary arguments
     if args.run_name is None:
@@ -61,8 +61,11 @@ def main():
     # set distribution and mixed precision, using `accelerate` package
     os.environ['TOKENIZERS_PARALLELISM'] = "false"
     args.use_cuda = torch.cuda.is_available() and not args.no_cuda
-    if args.use_cuda and args.cuda_visible_devices is not None:
-        os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
+    logger.info(f"Use cuda: {args.use_cuda}")
+    if args.use_cuda:
+        if args.cuda_visible_devices is not None:
+            os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
+        logger.info(f"Devices: {torch.device}")
 
     # set random seed
     if args.random_seed > 0:

@@ -1,5 +1,5 @@
 import torch
-from torch.utils.data.dataset import TensorDataset
+from torch.utils.data.dataset import Dataset
 from torch.utils.data.dataloader import DataLoader
 import json
 import os
@@ -28,6 +28,18 @@ class DataInstance:
 class InputFeature:
     input_ids: List[int]
     decoder_input_ids: List[int]
+
+
+class CodeDataset(Dataset):
+    def __init__(self, data):
+        super(CodeDataset, self).__init__()
+        self.data = data
+
+    def __getitem__(self, idx):
+        return self.data[idx]
+
+    def __len__(self):
+        return len(self.data)
 
 
 def load_instances(args, split):
@@ -184,13 +196,28 @@ def create_dataset(args, instances, tokenizer):
     else:
         features = [encode_func(example) for example in tqdm(instances, total=len(instances), desc="Encoding")]
 
-    all_input_ids, all_decoder_input_ids = [], []
+    # all_input_ids, all_decoder_input_ids = [], []
+    # for f in features:
+    #     all_input_ids.append(f.input_ids)
+    #     all_decoder_input_ids.append(f.decoder_input_ids)
+    # all_input_ids = torch.tensor(all_input_ids, dtype=torch.long)
+    # all_decoder_input_ids = torch.tensor(all_decoder_input_ids, dtype=torch.long)
+    # dataset = TensorDataset(all_input_ids, all_decoder_input_ids)
+    # return dataset
+
+    input_dicts = []
     for f in features:
-        all_input_ids.append(f.input_ids)
-        all_decoder_input_ids.append(f.decoder_input_ids)
-    all_input_ids = torch.tensor(all_input_ids, dtype=torch.long)
-    all_decoder_input_ids = torch.tensor(all_decoder_input_ids, dtype=torch.long)
-    dataset = TensorDataset(all_input_ids, all_decoder_input_ids)
+        input_ids = torch.tensor(f.input_ids, dtype=torch.long)
+        decoder_input_ids = torch.tensor(f.decoder_input_ids, dtype=torch.long)
+        input_dicts.append(
+            {
+                "input_ids": input_ids,
+                "attention_mask": input_ids.ne(tokenizer.pad_token_id),
+                "labels": decoder_input_ids,
+                "decoder_attention_mask": decoder_input_ids.ne(tokenizer.pad_token_id)
+            }
+        )
+    dataset = CodeDataset(input_dicts)
     return dataset
 
 

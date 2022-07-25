@@ -81,7 +81,7 @@ class LogStateCallBack(TrainerCallback):
 def get_run_name(args):
     short_name = get_short_run_name(args)
     tokens = [short_name, f"bs{args.train_batch_size}", f"ep{args.num_epochs}",
-              f"lr{args.learning_rate}", f"warmup{args.num_warmup_steps}"]
+              f"lr{args.learning_rate}", f"warmup{args.warmup_steps}"]
     return "_".join([token for token in tokens if token is not None and token != ""])
 
 

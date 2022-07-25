@@ -30,7 +30,6 @@ def run_tuning(args, run):
     # load tokenizer
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
     args.pad_token_id = tokenizer.pad_token_id
-
     logger.info(f"Loaded tokenizer '{tokenizer.__class__.__name__}' from '{args.model_name}', "
                 f"size: {len(tokenizer)}")
     # logger.debug(f"Special symbols: {tokenizer.all_special_tokens}")
@@ -42,7 +41,7 @@ def run_tuning(args, run):
         elif "plbart" in args.model_name:
             model = PLBartForConditionalGeneration(config)
         else:
-            raise ValueError(f"Model name `{args.model_name}` not supported.")
+            raise ValueError(f"Model name '{args.model_name}' not supported.")
     else:
         model = AutoModelForSeq2SeqLM.from_pretrained(args.model_name)
     model.resize_token_embeddings(len(tokenizer))
@@ -66,8 +65,8 @@ def run_tuning(args, run):
             per_device_eval_batch_size=args.eval_batch_size,
             gradient_accumulation_steps=args.gradient_accumulation_steps,
             learning_rate=args.learning_rate,
-            weight_decay=args.lr_decay_rate,
-            max_grad_norm=args.grad_clipping_norm,
+            weight_decay=args.weight_decay,
+            max_grad_norm=args.max_grad_norm,
             num_train_epochs=args.num_epochs,
             lr_scheduler_type=SchedulerType.LINEAR,
             warmup_steps=args.warmup_steps,
