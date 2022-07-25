@@ -132,8 +132,8 @@ def run_tuning(args, run):
     metrics = results.metrics
     all_golds = metrics.pop("eval_golds")
     all_preds = metrics.pop("eval_preds")
-    tuner.log_metrics(split='test', metrics=metrics)
-    tuner.save_metrics(split='test', metrics=metrics)
+    tuner.log_metrics(split='eval', metrics=metrics)
+    tuner.save_metrics(split='eval', metrics=metrics)
 
     # # general statistics
     # num_examples = 0
