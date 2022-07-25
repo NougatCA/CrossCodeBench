@@ -1,5 +1,5 @@
 from transformers import AutoConfig, AutoTokenizer, AutoModelForSeq2SeqLM, \
-    T5ForConditionalGeneration, PLBartForConditionalGeneration, Seq2SeqTrainingArguments, Seq2SeqTrainer, \
+    T5ForConditionalGeneration, PLBartForConditionalGeneration, Seq2SeqTrainingArguments, \
     SchedulerType, IntervalStrategy
 import torch
 import logging
@@ -80,7 +80,7 @@ def run_tuning(args, run):
             bf16=args.mixed_precision == "bf16",
             fp16=args.mixed_precision == "fp16",
             dataloader_drop_last=False,
-            run_name=args.run_name,
+            run_name=args.short_run_name,
             ignore_data_skip=False,
             label_smoothing_factor=args.label_smoothing_factor,
             report_to=["tensorboard", "wandb"],
