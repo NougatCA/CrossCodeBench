@@ -9,7 +9,7 @@ import numpy as np
 import json
 from prettytable import PrettyTable
 
-from utils import postprocess_results, human_format, count_params, layer_wise_parameters, Tuner, LogStateCallBack
+from utils import human_format, count_params, layer_wise_parameters, Tuner, LogStateCallBack
 from data import prepare_data
 from metrics.exact_match import exact_match
 from metrics.google_bleu import google_bleu
