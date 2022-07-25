@@ -65,7 +65,9 @@ def main():
     if args.use_cuda:
         if args.cuda_visible_devices is not None:
             os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
-        logger.info(f"Devices: {torch.device}")
+            logger.info(f"Devices: {args.cuda_visible_devices}")
+        else:
+            logger.info(f"Use all devices")
 
     # set random seed
     if args.random_seed > 0:

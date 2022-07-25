@@ -71,7 +71,6 @@ class LogStateCallBack(TrainerCallback):
                      optimizer: torch.optim.Optimizer,
                      **kwargs):
         epoch = state.epoch - 1
-        self.map_step_epoch[state.global_step] = epoch
         logger.debug('Epoch {} / step {} finished, time: {:.2f}s'.format(epoch,
                                                                          state.global_step,
                                                                          self.epoch_timer.time()))
@@ -122,20 +121,16 @@ def layer_wise_parameters(model):
     return table
 
 
-def postprocess_results(result_dict: dict, major_metric=None):
+def postprocess_results(result_dict: dict):
     """
     Post-processes the evaluation result dict, such as generates result table and extracts major score.
 
     Args:
         result_dict (dict):
             A dict mapping from metric name to its score.
-        major_metric (str, optional, defaults to None):
-            The major metric name, if given, will return the major score.
     Returns:
         result_table (PrettyTable):
             A table of results.
-        major_score (Union[None, float])
-            The score corresponds to the major metric, `None` if `major_metric` is `None`.
     """
     results_table = PrettyTable()
     results_table.field_names = ["Metric", "Score"]
@@ -143,9 +138,5 @@ def postprocess_results(result_dict: dict, major_metric=None):
     results_table.align["Score"] = "l"
     major_score = None
     for metric, score in result_dict.items():
-        if major_metric and metric.endswith(major_metric):
-            results_table.add_row([f"**{metric}**", score])
-            major_score = score
-        else:
-            results_table.add_row([metric, str(score)])
+        results_table.add_row([metric, str(score)])
     return results_table, major_score

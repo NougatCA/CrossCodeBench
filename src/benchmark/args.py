@@ -28,9 +28,9 @@ def add_args(parser: ArgumentParser):
                         help="If > 0: set total number of training steps to perform. Override num_train_epochs.")
     parser.add_argument("--num_epochs", type=int, default=5,
                         help="Number of total training epochs.")
-    parser.add_argument("--train_batch_size", type=int, default=8,
+    parser.add_argument("--train_batch_size", type=int, default=32,
                         help="Size of training batch, per device.")
-    parser.add_argument("--eval_batch_size", type=int, default=8,
+    parser.add_argument("--eval_batch_size", type=int, default=32,
                         help="Size of validation/testing batch, per device.")
 
     parser.add_argument("--max_source_length", type=int, default=256,

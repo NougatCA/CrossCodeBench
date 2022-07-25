@@ -83,6 +83,7 @@ def run_tuning(args, run):
             ignore_data_skip=False,
             label_smoothing_factor=args.label_smoothing_factor,
             report_to=["tensorboard", "wandb"],
+            predict_with_generate=True,
             dataloader_pin_memory=True)
         tuner = Tuner(
             tune_dataloader=tune_dataloader,
@@ -108,20 +109,21 @@ def run_tuning(args, run):
     num_examples = 0
     num_steps = 0
     loss_list = []
-
     results = {}
-    eval_dir = os.path.join(args.eval_dir)
-    os.makedirs(eval_dir)
+
     model.eval()
 
     all_preds = []
     all_golds = []
     for batch in tqdm(eval_dataloader, total=len(eval_dataloader), desc="Evaluating"):
         with torch.no_grad():
-            input_ids, labels = batch
-            attention_mask = input_ids.ne(tokenizer.pad_token_id)
+            input_ids = batch["input_ids"]
+            attention_mask = batch["attention_mask"]
+            if args.use_cuda:
+                input_ids = input_ids.cuda()
+                attention_mask = attention_mask.cuda()
             generated_tokens = model.generate(
-                input_ids,
+                input_ids=input_ids,
                 attention_mask=attention_mask,
                 max_length=args.max_target_length,
                 num_beams=args.num_beams,
@@ -129,7 +131,7 @@ def run_tuning(args, run):
             )
 
             generated_tokens = generated_tokens.cpu().numpy()
-            labels = labels.cpu().numpy()
+            labels = batch["labels"].cpu().numpy()
 
             decoded_preds = tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
             decoded_golds = tokenizer.batch_decode(labels, skip_special_tokens=True)
@@ -137,7 +139,7 @@ def run_tuning(args, run):
             all_preds.extend([pred.strip() for pred in decoded_preds])
             all_golds.extend([label.strip() for label in decoded_golds])
 
-            num_examples += input_ids.size(0)
+            num_examples += batch["input_ids"].size(0)
             num_steps += 1
 
     # compute bleu, em, rouge-l, etc.
@@ -147,8 +149,8 @@ def run_tuning(args, run):
     results.update(rouge_l(preds=all_preds, golds=all_golds))
 
     # save predictions and golds
-    with open(os.path.join(eval_dir, "predictions.txt"), mode="w", encoding="utf-8") as pred_f, \
-            open(os.path.join(eval_dir, "golds.txt"), mode="w", encoding="utf-8") as gold_f:
+    with open(os.path.join(args.eval_dir, "predictions.txt"), mode="w", encoding="utf-8") as pred_f, \
+            open(os.path.join(args.eval_dir, "golds.txt"), mode="w", encoding="utf-8") as gold_f:
         for pred, gold in zip(all_preds, all_golds):
             pred_f.write(pred + "\n")
             gold_f.write(gold + "\n")
@@ -161,9 +163,9 @@ def run_tuning(args, run):
     })
 
     # save results
-    with open(os.path.join(eval_dir, "results.json"), mode="w", encoding="utf-8") as result_f:
-        json.dump(results, result_f)
+    with open(os.path.join(args.eval_dir, "results.json"), mode="w", encoding="utf-8") as result_f:
+        json.dump(results, result_f, indent=4)
 
-    result_table, _ = postprocess_results(results, major_metric=args.major_metric)
+    result_table, _ = postprocess_results(results)
     logger.info(f"End of evaluating, results:\n{result_table}")
     run.log(results)
