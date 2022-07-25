@@ -43,12 +43,16 @@ class Timer(object):
 
 class Tuner(Seq2SeqTrainer):
 
-    def __init__(self, tune_dataloader, **kwargs):
+    def __init__(self, **kwargs):
         super(Tuner, self).__init__(**kwargs)
-        self.tune_dataloader = tune_dataloader
+        self.tune_dataloader = None
+        self.eval_dataloader = None
 
     def get_train_dataloader(self):
         return self.tune_dataloader
+
+    def get_test_dataloader(self):
+        return self.eval_dataloader
 
 
 class LogStateCallBack(TrainerCallback):
@@ -119,24 +123,3 @@ def layer_wise_parameters(model):
         if parameters.requires_grad:
             table.add_row([name, str(list(parameters.shape)), parameters.numel()])
     return table
-
-
-def postprocess_results(result_dict: dict):
-    """
-    Post-processes the evaluation result dict, such as generates result table and extracts major score.
-
-    Args:
-        result_dict (dict):
-            A dict mapping from metric name to its score.
-    Returns:
-        result_table (PrettyTable):
-            A table of results.
-    """
-    results_table = PrettyTable()
-    results_table.field_names = ["Metric", "Score"]
-    results_table.align["Metric"] = "c"
-    results_table.align["Score"] = "l"
-    major_score = None
-    for metric, score in result_dict.items():
-        results_table.add_row([metric, str(score)])
-    return results_table, major_score
