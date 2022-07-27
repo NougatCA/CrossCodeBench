@@ -76,9 +76,11 @@ def load_instances(args, split):
             task_instances = data["Instances"]
             # sample
             if split == "tune" and len(task_instances) > args.max_sample_per_task:
-                task_instances = random.sample(task_instances, k=args.max_sample_per_task)
+                # task_instances = random.sample(task_instances, k=args.max_sample_per_task)
+                task_instances = task_instances[:args.max_sample_per_task]
             elif split == "eval" and len(task_instances) > args.max_eval_sample_per_task:
-                task_instances = random.sample(task_instances, k=args.max_eval_sample_per_task)
+                # task_instances = random.sample(task_instances, k=args.max_eval_sample_per_task)
+                task_instances = task_instances[:args.max_eval_sample_per_task]
             # task id
             task_id = task_name.split("_")[1]
             meta["task_id"] = task_id

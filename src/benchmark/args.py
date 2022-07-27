@@ -82,7 +82,7 @@ def add_args(parser: ArgumentParser):
     # ablation
     parser.add_argument("--max_sample_per_task", type=int, default=10000,
                         help="Sample a number of training instance per task for training.")
-    parser.add_argument("--max_eval_sample_per_task", type=int, default=5000,
+    parser.add_argument("--max_eval_sample_per_task", type=int, default=1000,
                         help="Maximum number of samples per task for evaluating.")
 
     # verbalizer type, default by none
