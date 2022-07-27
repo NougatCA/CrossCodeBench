@@ -1,4 +1,3 @@
-
 model_to_ids = {
     "t5-small": "t5-small",
     "t5": "t5-base",
@@ -14,3 +13,13 @@ model_to_ids = {
     "plbart-multi": "uclanlp/plbart-multi_task-all",
     "plbart-large": "uclanlp/plbart-large"
 }
+
+all_instruction_items = [
+    "task_id",
+    "Definition",
+    "Type",
+    "Categories",
+    "Reasoning",
+    "Input_language",
+    "Output_language",
+    "Domains"]

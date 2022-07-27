@@ -1,3 +1,5 @@
+import logging
+
 from transformers import SchedulerType
 from argparse import ArgumentParser
 
@@ -26,11 +28,11 @@ def add_args(parser: ArgumentParser):
     # hyper parameters
     parser.add_argument("--max_train_steps", type=int, default=None,
                         help="If > 0: set total number of training steps to perform. Override num_train_epochs.")
-    parser.add_argument("--num_epochs", type=int, default=5,
+    parser.add_argument("--num_epochs", type=int, default=3,
                         help="Number of total training epochs.")
     parser.add_argument("--train_batch_size", type=int, default=32,
                         help="Size of training batch, per device.")
-    parser.add_argument("--eval_batch_size", type=int, default=32,
+    parser.add_argument("--eval_batch_size", type=int, default=8,
                         help="Size of validation/testing batch, per device.")
 
     parser.add_argument("--max_source_length", type=int, default=256,
@@ -58,7 +60,7 @@ def add_args(parser: ArgumentParser):
                         choices=["linear", "cosine", "cosine_with_restarts", "polynomial",
                                  "constant", "constant_with_warmup"])
 
-    parser.add_argument("--num_beams", type=int, default=10,
+    parser.add_argument("--num_beams", type=int, default=5,
                         help="beam size for beam search.")
     parser.add_argument("--label_smoothing_factor", type=float, default=0.0,
                         help="Label smoothing factor.")
@@ -81,11 +83,15 @@ def add_args(parser: ArgumentParser):
     parser.add_argument("--max_eval_sample_per_task", type=int, default=5000,
                         help="Maximum number of samples per task for evaluating.")
 
-    # instruction & prompt
-    parser.add_argument("--no_verbalizer", action="store_true", default=False,
-                        help="Whether to input source without any verbalizer.")
+    # verbalizer type, default by none
+    # prompt
     parser.add_argument("--use_prompt", action="store_true", default=False,
-                        help="Whether to use prompt rather than instruction.")
+                        help="Whether to use prompt.")
+    # task instruction
+    parser.add_argument("--use_instruction", action="store_true", default=False,
+                        help="Whether to use task instruction.")
+    parser.add_argument("--instruction_items", type=str, default=None,
+                        help="Items used in the task instruction, separated by comma.")
     parser.add_argument("--num_pos_examples", type=int, default=2,
                         choices=[0, 1, 2, 3, 4],
                         help="Number of positive examples in the instructions.")
@@ -103,4 +109,15 @@ def add_args(parser: ArgumentParser):
 
 def check_args(args):
     """Check if args values are valid, and conduct some default settings."""
-    pass
+    if args.use_instruction:
+        if args.instruction_items:
+            valid_items = []
+            items = args.instruction_items.split(",")
+            for item in items:
+                if item not in configs.all_instruction_items:
+                    logging.warning(f"The item '{item}' is not in the instruction keys, skipped.")
+                else:
+                    valid_items.append(item)
+            args.instruction_items = "|".join(valid_items)
+        else:
+            args.instruction_items = "|".join(configs.all_instruction_items)

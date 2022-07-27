@@ -43,16 +43,12 @@ class Timer(object):
 
 class Tuner(Seq2SeqTrainer):
 
-    def __init__(self, **kwargs):
+    def __init__(self, tune_dataloader, **kwargs):
         super(Tuner, self).__init__(**kwargs)
-        self.tune_dataloader = None
-        self.eval_dataloader = None
+        self.tune_dataloader = tune_dataloader
 
     def get_train_dataloader(self):
         return self.tune_dataloader
-
-    def get_test_dataloader(self, test_dataset):
-        return self.eval_dataloader
 
 
 class LogStateCallBack(TrainerCallback):

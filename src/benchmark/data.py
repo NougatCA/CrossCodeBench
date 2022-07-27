@@ -106,8 +106,9 @@ def load_instances(args, split):
 
 def convert_instance_to_feature(instance: DataInstance,
                                 tokenizer,
-                                no_verbalizer,
                                 use_prompt,
+                                use_instruction,
+                                instruction_items,
                                 num_pos_examples,
                                 num_neg_examples,
                                 max_source_length,
@@ -116,20 +117,17 @@ def convert_instance_to_feature(instance: DataInstance,
     def convert_inputs_to_seq(inputs: Union[str, List[str]]):
         return inputs if isinstance(inputs, str) else " ||| ".join(instance.inputs)
 
-    if no_verbalizer:
-        input_ids = tokenizer.encode(convert_inputs_to_seq(instance.inputs),
-                                     padding="max_length",
-                                     max_length=max_instruction_length + max_source_length,
-                                     truncation=True)
-    elif use_prompt:
+    # build input ids
+    # use prompt
+    if use_prompt:
         input_txt = "{}: {}".format(instance.meta["prompt"][0], convert_inputs_to_seq(instance.inputs))
         input_ids = tokenizer.encode(input_txt,
                                      padding="max_length",
                                      max_length=max_instruction_length + max_source_length,
                                      truncation=True)
-    else:
-        instruction_keys = ["task_id", "Definition", "Type", "Categories", "Reasoning",
-                            "Input_language", "Output_language", "Domains"]
+    # use task instruction
+    elif use_instruction:
+        instruction_keys = instruction_items.split("|")
         instruction_seqs = []
         for key in instruction_keys:
             values = instance.meta[key]
@@ -168,6 +166,12 @@ def convert_instance_to_feature(instance: DataInstance,
                                       truncation=True)
 
         input_ids = instruction_ids + source_ids
+    # no verbalizer
+    else:
+        input_ids = tokenizer.encode(convert_inputs_to_seq(instance.inputs),
+                                     padding="max_length",
+                                     max_length=max_instruction_length + max_source_length,
+                                     truncation=True)
 
     decoder_input_ids = tokenizer.encode(convert_inputs_to_seq(instance.outputs),
                                          padding="max_length",
@@ -183,8 +187,9 @@ def create_dataset(args, instances, tokenizer):
     processes = multiprocessing.cpu_count()
     encode_func = partial(convert_instance_to_feature,
                           tokenizer=tokenizer,
-                          no_verbalizer=args.no_verbalizer,
                           use_prompt=args.use_prompt,
+                          use_instruction=args.use_instruction,
+                          instruction_items=args.instruction_items,
                           num_pos_examples=args.num_pos_examples,
                           num_neg_examples=args.num_neg_examples,
                           max_source_length=args.max_source_length,
