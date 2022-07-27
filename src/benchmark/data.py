@@ -122,7 +122,7 @@ def convert_instance_to_feature(instance: DataInstance,
     # build input ids
     # use prompt
     if use_prompt:
-        input_txt = "{}: {}".format(instance.meta["prompt"][0], convert_inputs_to_seq(instance.inputs))
+        input_txt = "{}: {}".format(instance.meta["Prompt"][0], convert_inputs_to_seq(instance.inputs))
         input_ids = tokenizer.encode(input_txt,
                                      padding="max_length",
                                      max_length=max_instruction_length + max_source_length,
