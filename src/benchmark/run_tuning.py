@@ -51,7 +51,7 @@ def run_tuning(args, run):
     logger.debug(f"Layer-wise parameters:\n{layer_wise_parameters(model)}")
 
     if not args.only_eval:
-        tune_dataset, tune_dataloader = prepare_data(args, split="tune", tokenizer=tokenizer)
+        tune_dataloader = prepare_data(args, split="tune", tokenizer=tokenizer)
         logger.info(f"Tuning data is loaded and prepared")
 
         # prepare tuner
@@ -103,7 +103,12 @@ def run_tuning(args, run):
 
     # load eval data
     logger.info(f"Start loading evaluation data")
-    eval_dataset, eval_dataloader = prepare_data(args, split="eval", tokenizer=tokenizer)
+    eval_dataloader = prepare_data(args, split="eval", tokenizer=tokenizer)
+    logger.info(f"Evaluation data is loaded and prepared")
+
+    logger.info(f"***** Running Evaluation *****")
+    logger.info(f"  Num examples = {len(eval_dataloader.dataset)}")
+    logger.info(f"  Batch size = {args.eval_batch_size}")
 
     # general statistics
     num_examples = 0

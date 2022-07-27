@@ -238,4 +238,4 @@ def prepare_data(args, split, tokenizer):
                             num_workers=4,
                             pin_memory=True)
 
-    return dataset, dataloader
+    return dataloader
