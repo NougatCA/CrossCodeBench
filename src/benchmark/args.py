@@ -104,7 +104,7 @@ def add_args(parser: ArgumentParser):
     # outputs and savings
     parser.add_argument("--run_name", type=str, default=None,
                         help="Unique name of current running, will be automatically set if it is None.")
-    parser.add_argument("--wandb_mode", type=str, default="disabled",
+    parser.add_argument("--wandb_mode", type=str, default="online",
                         choices=["online", "offline", "disabled"],
                         help="Set the wandb mode.")
 
