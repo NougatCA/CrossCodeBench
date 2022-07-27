@@ -88,6 +88,18 @@ def get_short_run_name(args):
     tokens = [args.init_model]
     if args.random_init:
         tokens.append("random")
+
+    if args.use_prompt:
+        tokens.append("prompt")
+    elif args.use_instruction:
+        tokens.append("instruction")
+        if args.instruction_items:
+            tokens.append(args.instruction_items)
+        else:
+            tokens.append("all")
+    else:
+        tokens.append("none")
+
     tokens.append(args.task_split_config)
     return "_".join([token for token in tokens if token is not None and token != ""])
 
