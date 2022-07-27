@@ -1,9 +1,11 @@
-import logging
-
 from transformers import SchedulerType
 from argparse import ArgumentParser
+import logging
 
 import configs
+
+
+logger = logging.getLogger(__name__)
 
 
 def add_args(parser: ArgumentParser):
@@ -75,7 +77,7 @@ def add_args(parser: ArgumentParser):
                         help="Disable cuda, overrides cuda_visible_devices.")
     parser.add_argument("--mixed_precision", type=str, default="fp16",
                         choices=["no", "fp16", "bf16"],
-                        help="Mixed precision option, chosen from `no`, `fp16`, `bf16`")
+                        help="Mixed precision option, chosen from `no`, `fp16`, `bf16`.")
 
     # ablation
     parser.add_argument("--max_sample_per_task", type=int, default=10000,
@@ -91,7 +93,7 @@ def add_args(parser: ArgumentParser):
     parser.add_argument("--use_instruction", action="store_true", default=False,
                         help="Whether to use task instruction.")
     parser.add_argument("--instruction_items", type=str, default=None,
-                        help="Items used in the task instruction, separated by comma.")
+                        help="Items used in the task instruction, separated by '|'.")
     parser.add_argument("--num_pos_examples", type=int, default=2,
                         choices=[0, 1, 2, 3, 4],
                         help="Number of positive examples in the instructions.")
@@ -109,15 +111,23 @@ def add_args(parser: ArgumentParser):
 
 def check_args(args):
     """Check if args values are valid, and conduct some default settings."""
+    if args.use_prompt:
+        logger.info("Verbalizer: Prompt")
     if args.use_instruction:
+        logger.info("Verbalizer: Task Instruction")
         if args.instruction_items:
             valid_items = []
-            items = args.instruction_items.split(",")
+            items = args.instruction_items.split("|")
             for item in items:
                 if item not in configs.all_instruction_items:
-                    logging.warning(f"The item '{item}' is not in the instruction keys, skipped.")
+                    logger.warning(f"The item '{item}' is not in the instruction keys, skipped.")
                 else:
                     valid_items.append(item)
             args.instruction_items = "|".join(valid_items)
+            logger.info("Instruction Items: {}".format(", ".join(valid_items)))
         else:
             args.instruction_items = "|".join(configs.all_instruction_items)
+            logger.info("Using All Instruction Items")
+        logger.info(f"Positive/Negative Example #: {args.num_pos_examples}/{args.num_neg_examples}")
+    else:
+        logger.info("No Verbalizer")

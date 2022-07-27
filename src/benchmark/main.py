@@ -23,9 +23,6 @@ def main():
     add_args(parser)
     args = parser.parse_args()
 
-    # check args
-    # check_args(args)
-
     # prepare some preliminary arguments
     if args.run_name is None:
         args.run_name = get_run_name(args)
@@ -57,6 +54,9 @@ def main():
     logger.addHandler(file)
 
     logger.info("=" * 20 + " INITIALIZING " + "=" * 20)
+
+    # check args
+    check_args(args)
 
     # set distribution and mixed precision, using `accelerate` package
     os.environ['TOKENIZERS_PARALLELISM'] = "false"

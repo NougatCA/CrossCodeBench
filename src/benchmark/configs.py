@@ -22,4 +22,5 @@ all_instruction_items = [
     "Reasoning",
     "Input_language",
     "Output_language",
-    "Domains"]
+    "Domains"
+]
