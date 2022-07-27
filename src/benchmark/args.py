@@ -20,7 +20,7 @@ def add_args(parser: ArgumentParser):
     # task
     parser.add_argument("--task_dir", type=str, default="../../tasks",
                         help="The directory where tasks store.")
-    parser.add_argument("--task_split_config", type=str, default="test",
+    parser.add_argument("--task_split_config", type=str, default="translation",
                         help="The task split configuration, see `../../tasks/split/` for details.")
 
     # train, valid and test procedure
