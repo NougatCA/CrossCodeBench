@@ -52,6 +52,9 @@ def load_instances(args, split):
         split_config = json.load(f)
         task_names = split_config[split]
 
+    if split == "tune" and 0 < args.max_num_tune_tasks < len(task_names):
+        task_names = task_names[:args.max_num_tune_tasks]
+
     # load data
     logger.info(f"Start loading '{split}' data from '{args.task_dir}'")
 

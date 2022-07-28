@@ -22,6 +22,8 @@ def add_args(parser: ArgumentParser):
                         help="The directory where tasks store.")
     parser.add_argument("--task_split_config", type=str, default="translation",
                         help="The task split configuration, see `../../tasks/split/` for details.")
+    parser.add_argument("--max_num_tune_tasks", type=int, default=0,
+                        help="Maximum number of tuning tasks, 0 to use all.")
 
     # train, valid and test procedure
     parser.add_argument("--only_eval", action="store_true", default=False,
