@@ -98,6 +98,11 @@ def run_tuning(args, run):
         tuner.train()
         logger.info("End of tuning")
 
+    run_eval(args, model, tokenizer, run)
+
+
+def run_eval(args, model, tokenizer, run):
+
     logger.info("=" * 20 + " EVALUATING " + "=" * 20)
     torch.cuda.empty_cache()
 
