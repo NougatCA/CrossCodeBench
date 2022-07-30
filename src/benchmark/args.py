@@ -32,7 +32,7 @@ def add_args(parser: ArgumentParser):
     # hyper parameters
     parser.add_argument("--max_train_steps", type=int, default=None,
                         help="If > 0: set total number of training steps to perform. Override num_train_epochs.")
-    parser.add_argument("--num_epochs", type=int, default=3,
+    parser.add_argument("--num_epochs", type=int, default=2,
                         help="Number of total training epochs.")
     parser.add_argument("--train_batch_size", type=int, default=32,
                         help="Size of training batch, per device.")
@@ -84,7 +84,7 @@ def add_args(parser: ArgumentParser):
     # ablation
     parser.add_argument("--max_sample_per_task", type=int, default=10000,
                         help="Sample a number of training instance per task for training.")
-    parser.add_argument("--max_eval_sample_per_task", type=int, default=1000,
+    parser.add_argument("--max_eval_sample_per_task", type=int, default=500,
                         help="Maximum number of samples per task for evaluating.")
 
     # verbalizer type, default by none
@@ -115,7 +115,7 @@ def check_args(args):
     """Check if args values are valid, and conduct some default settings."""
     if args.use_prompt:
         logger.info("Verbalizer: Prompt")
-    if args.use_instruction:
+    elif args.use_instruction:
         logger.info("Verbalizer: Task Instruction")
         if args.instruction_items:
             valid_items = []
