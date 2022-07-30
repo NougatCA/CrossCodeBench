@@ -189,7 +189,7 @@ def create_dataset(args, instances, tokenizer):
     """Create dataset by converting examples to input features."""
 
     logger.info(f"Start encoding instances into features")
-    processes = multiprocessing.cpu_count()
+    processes = multiprocessing.cpu_count() // 2
     encode_func = partial(convert_instance_to_feature,
                           tokenizer=tokenizer,
                           use_prompt=args.use_prompt,
