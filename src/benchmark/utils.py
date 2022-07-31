@@ -100,6 +100,9 @@ def get_short_run_name(args):
     else:
         tokens.append("none")
 
+    if args.only_eval:
+        tokens.append("no-tuned")
+
     tokens.append(args.task_split_config)
     return "_".join([token for token in tokens if token is not None and token != ""])
 
