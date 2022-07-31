@@ -121,6 +121,8 @@ def run_eval(args, model, tokenizer, run):
     loss_list = []
     results = {}
 
+    if args.use_cuda:
+        model = model.cuda()
     model.eval()
 
     all_preds = []
