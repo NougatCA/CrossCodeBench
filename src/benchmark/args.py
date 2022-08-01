@@ -88,6 +88,12 @@ def add_args(parser: ArgumentParser):
                         help="Maximum number of samples per task for evaluating.")
 
     # verbalizer type, default by none
+    # few-shot and one-shot
+    parser.add_argument("--use_few_shot", action="store_true", default=False,
+                        help="Whether to use few-shot learning.")
+    parser.add_argument("--num_shots", type=int, default=1,
+                        choices=[1, 2, 3, 4],
+                        help="Number of examples in the few-shot learning.")
     # prompt
     parser.add_argument("--use_prompt", action="store_true", default=False,
                         help="Whether to use prompt.")
@@ -113,10 +119,16 @@ def add_args(parser: ArgumentParser):
 
 def check_args(args):
     """Check if args values are valid, and conduct some default settings."""
+    if args.use_few_shot:
+        if args.num_shots > 1:
+            logger.info("Verbalizer: few-shot")
+            logger.info(f"# of examples: {args.num_shots}")
+        else:
+            logger.info("Verbalizer: one-shot")
     if args.use_prompt:
-        logger.info("Verbalizer: Prompt")
+        logger.info("Verbalizer: prompt")
     elif args.use_instruction:
-        logger.info("Verbalizer: Task Instruction")
+        logger.info("Verbalizer: task instruction")
         if args.instruction_items:
             valid_items = []
             items = args.instruction_items.split("|")
@@ -126,10 +138,10 @@ def check_args(args):
                 else:
                     valid_items.append(item)
             args.instruction_items = "|".join(valid_items)
-            logger.info("Instruction Items: {}".format(", ".join(valid_items)))
+            logger.info("Instruction items: {}".format(", ".join(valid_items)))
         else:
             args.instruction_items = "|".join(configs.all_instruction_items)
-            logger.info("Using All Instruction Items")
-        logger.info(f"Positive/Negative Example #: {args.num_pos_examples}/{args.num_neg_examples}")
+            logger.info("Use all instruction items")
+        logger.info(f"# of positive/negative examples: {args.num_pos_examples}/{args.num_neg_examples}")
     else:
-        logger.info("No Verbalizer")
+        logger.info("No verbalizer")

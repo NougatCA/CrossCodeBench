@@ -111,6 +111,8 @@ def load_instances(args, split):
 
 def convert_instance_to_feature(instance: DataInstance,
                                 tokenizer,
+                                use_few_shot,
+                                num_shots,
                                 use_prompt,
                                 use_instruction,
                                 instruction_items,
@@ -123,8 +125,30 @@ def convert_instance_to_feature(instance: DataInstance,
         return inputs if isinstance(inputs, str) else " ||| ".join(instance.inputs)
 
     # build input ids
+    # use few-shot
+    if use_few_shot:
+        examples = random.sample(instance.meta["Positive Examples"], k=num_shots)
+        few_shot_txt = "; ".join(["Example {} - input: {}; output: {}".format(
+            idx + 1,
+            convert_inputs_to_seq(example["input"]),
+            convert_inputs_to_seq(example["output"])) for idx, example in enumerate(examples)])
+        few_shot_txt += f"; Now complete the following example − input: "
+
+        source_txt = f"{convert_inputs_to_seq(instance.inputs)}; output:"
+
+        few_shot_ids = tokenizer.encode(few_shot_txt,
+                                        padding="max_length",
+                                        max_length=max_instruction_length,
+                                        truncation=True,
+                                        add_special_tokens=False)
+        source_ids = tokenizer.encode(source_txt,
+                                      padding="max_length",
+                                      max_length=max_source_length,
+                                      truncation=True)
+
+        input_ids = few_shot_ids + source_ids
     # use prompt
-    if use_prompt:
+    elif use_prompt:
         input_txt = "{}: {}".format(instance.meta["Prompt"][0], convert_inputs_to_seq(instance.inputs))
         input_ids = tokenizer.encode(input_txt,
                                      padding="max_length",
@@ -192,6 +216,8 @@ def create_dataset(args, instances, tokenizer):
     processes = multiprocessing.cpu_count() // 2
     encode_func = partial(convert_instance_to_feature,
                           tokenizer=tokenizer,
+                          use_few_shot=args.use_few_shot,
+                          num_shots=args.num_shots,
                           use_prompt=args.use_prompt,
                           use_instruction=args.use_instruction,
                           instruction_items=args.instruction_items,
