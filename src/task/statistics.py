@@ -3,6 +3,8 @@ import os
 import json
 import numpy as np
 
+from category_to_task_type import convert_category_to_task_type
+
 
 def update_or_create_count(key, dictionary):
     if key in dictionary:
@@ -23,6 +25,7 @@ def main(root):
     total_sizes = []
     type_to_count = {}
     category_to_count = {}
+    task_type_to_count = {}
     reason_to_count = {}
     input_lang_to_count = {}
     output_lang_to_count = {}
@@ -46,6 +49,9 @@ def main(root):
                 # category
                 category = data["Categories"][0]
                 category_to_count = update_or_create_count(category, category_to_count)
+                # task type
+                task_type_new = convert_category_to_task_type(category)
+                task_type_to_count = update_or_create_count(task_type_new, task_type_to_count)
                 # reasoning on
                 if len(data["Reasoning"]) > 0:
                     reason = data["Reasoning"][0]
@@ -76,6 +82,9 @@ def main(root):
     print("-" * 50)
     print("Category to count:")
     print_dict(category_to_count)
+    print("-" * 50)
+    print("Task type to count:")
+    print_dict(task_type_to_count)
     print("-" * 50)
     print("Reasoning type to count:")
     print_dict(reason_to_count)
