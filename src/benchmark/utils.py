@@ -89,7 +89,9 @@ def get_short_run_name(args):
     if args.random_init:
         tokens.append("random")
 
-    if args.use_prompt:
+    if args.use_few_shot:
+        tokens.append(f"{args.num_shots}-shot")
+    elif args.use_prompt:
         tokens.append("prompt")
     elif args.use_instruction:
         tokens.append("instruction")

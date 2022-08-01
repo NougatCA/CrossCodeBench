@@ -125,7 +125,7 @@ def check_args(args):
             logger.info(f"# of examples: {args.num_shots}")
         else:
             logger.info("Verbalizer: one-shot")
-    if args.use_prompt:
+    elif args.use_prompt:
         logger.info("Verbalizer: prompt")
     elif args.use_instruction:
         logger.info("Verbalizer: task instruction")
