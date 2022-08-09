@@ -80,6 +80,8 @@ def add_args(parser: ArgumentParser):
     parser.add_argument("--mixed_precision", type=str, default="fp16",
                         choices=["no", "fp16", "bf16"],
                         help="Mixed precision option, chosen from `no`, `fp16`, `bf16`.")
+    parser.add_argument("--single_thread", action="store_true", default=False,
+                        help="Whether to use single thread to encode examples.")
 
     # ablation
     parser.add_argument("--max_sample_per_task", type=int, default=10000,
