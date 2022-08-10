@@ -214,6 +214,7 @@ def create_dataset(args, instances, tokenizer):
 
     logger.info(f"Start encoding instances into features")
     processes = multiprocessing.cpu_count() // 2 if not args.single_thread else 1
+    logger.info(f"Using {processes} processes to encode instances")
     encode_func = partial(convert_instance_to_feature,
                           tokenizer=tokenizer,
                           use_few_shot=args.use_few_shot,
@@ -232,17 +233,9 @@ def create_dataset(args, instances, tokenizer):
     else:
         features = [encode_func(example) for example in tqdm(instances, total=len(instances), desc="Encoding")]
 
-    # all_input_ids, all_decoder_input_ids = [], []
-    # for f in features:
-    #     all_input_ids.append(f.input_ids)
-    #     all_decoder_input_ids.append(f.decoder_input_ids)
-    # all_input_ids = torch.tensor(all_input_ids, dtype=torch.long)
-    # all_decoder_input_ids = torch.tensor(all_decoder_input_ids, dtype=torch.long)
-    # dataset = TensorDataset(all_input_ids, all_decoder_input_ids)
-    # return dataset
-
+    logger.info(f"Features are prepared, start building the dataset.")
     input_dicts = []
-    for f in features:
+    for f in tqdm(features, total=len(features), desc="Building"):
         input_ids = torch.tensor(f.input_ids, dtype=torch.long)
         decoder_input_ids = torch.tensor(f.decoder_input_ids, dtype=torch.long)
         input_dicts.append(
