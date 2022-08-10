@@ -127,12 +127,15 @@ def convert_instance_to_feature(instance: DataInstance,
     # build input ids
     # use few-shot
     if use_few_shot:
+        description = "{}: ".format(instance.meta["Prompt"][0])
+
         examples = random.sample(instance.meta["Positive Examples"], k=num_shots)
         few_shot_txt = "; ".join(["Example {} - input: {}; output: {}".format(
             idx + 1,
             convert_inputs_to_seq(example["input"]),
             convert_inputs_to_seq(example["output"])) for idx, example in enumerate(examples)])
         few_shot_txt += f"; Now complete the following example − input: "
+        few_shot_txt = description + few_shot_txt
 
         source_txt = f"{convert_inputs_to_seq(instance.inputs)}; output:"
 
