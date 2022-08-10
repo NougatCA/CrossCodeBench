@@ -15,6 +15,7 @@ from metrics.exact_match import exact_match
 from metrics.google_bleu import google_bleu
 from metrics.smooth_bleu import smooth_bleu
 from metrics.rouge import rouge_l
+from metrics.acc import token_acc
 
 
 logger = logging.getLogger(__name__)
@@ -161,6 +162,7 @@ def run_eval(args, model, tokenizer, run):
     results.update(google_bleu(preds=all_preds, golds=all_golds))
     results.update(smooth_bleu(preds=all_preds, golds=all_golds))
     results.update(rouge_l(preds=all_preds, golds=all_golds))
+    results.update(token_acc(preds=all_preds, golds=all_golds))
 
     # save predictions and golds
     with open(os.path.join(args.eval_dir, "predictions.txt"), mode="w", encoding="utf-8") as pred_f, \
