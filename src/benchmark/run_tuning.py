@@ -155,6 +155,8 @@ def run_eval(args, model, tokenizer, run):
             num_examples += batch["input_ids"].size(0)
             num_steps += 1
 
+    logger.info("Start computing metrics and saving artifacts")
+
     # compute bleu, em, rouge-l, etc.
     results.update(exact_match(preds=all_preds, golds=all_golds))
     results.update(google_bleu(preds=all_preds, golds=all_golds))
