@@ -1,6 +1,7 @@
 import json
 import os
 from utils import walk_tasks
+from category_to_task_type import convert_category_to_task_type
 
 
 def category_task_exception(task_dir, task_name):
@@ -85,6 +86,33 @@ def category_task_ruby(task_dir, task_name):
         return "tune"
 
 
+def category_task_intra_multi_label(task_dir, task_name):
+    with open(os.path.join(task_dir, f"{task_name}.meta.json"), mode="r", encoding="utf-8") as f:
+        meta = json.load(f)
+    category = meta["Categories"][0]
+    task_type = convert_category_to_task_type(category)
+    if task_type == "Classification -> Multi-label":
+        return "eval"
+    elif task_type == "Classification -> Binary":
+        return "tune"
+    else:
+        return "none"
+
+
+def category_task_intra_code_to_text(task_dir, task_name):
+    with open(os.path.join(task_dir, f"{task_name}.meta.json"), mode="r", encoding="utf-8") as f:
+        meta = json.load(f)
+    category = meta["Categories"][0]
+    task_type = convert_category_to_task_type(category)
+    if task_type.startswith("Generation"):
+        if task_type == "Generation -> Code-to-Text":
+            return "eval"
+        else:
+            return "tune"
+    else:
+        return "none"
+
+
 def write_config(task_dir, splits_to_tasks, config_name):
     split_dir = os.path.join(task_dir, "split")
     if not os.path.exists(split_dir):
@@ -93,16 +121,40 @@ def write_config(task_dir, splits_to_tasks, config_name):
         json.dump(splits_to_tasks, f, indent=4)
 
 
+def category_task_inter_multi_label(task_dir, task_name):
+    with open(os.path.join(task_dir, f"{task_name}.meta.json"), mode="r", encoding="utf-8") as f:
+        meta = json.load(f)
+    category = meta["Categories"][0]
+    task_type = convert_category_to_task_type(category)
+    if task_type == "Classification -> Multi-label":
+        return "eval"
+    else:
+        return "tune"
+
+
+def category_task_qa(task_dir, task_name):
+    with open(os.path.join(task_dir, f"{task_name}.meta.json"), mode="r", encoding="utf-8") as f:
+        meta = json.load(f)
+    category = meta["Categories"][0]
+    task_type = convert_category_to_task_type(category)
+    if task_type == "Question Answering":
+        return "eval"
+    else:
+        return "tune"
+
+
 def main():
     task_dir = "../../tasks/"
-    config_name = "summarization"
+    config_name = "qa"
     # split to task name
     splits_to_tasks = {
         "tune": [],
         "eval": []
     }
     for task_name in walk_tasks(task_dir):
-        split = category_task_summarization(task_dir, task_name)
+        split = category_task_qa(task_dir, task_name)
+        if split == "none":
+            continue
         assert split in ["tune", "eval"]
         splits_to_tasks[split].append(task_name)
 
