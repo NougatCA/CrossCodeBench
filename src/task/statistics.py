@@ -6,11 +6,11 @@ import numpy as np
 from category_to_task_type import convert_category_to_task_type
 
 
-def update_or_create_count(key, dictionary):
+def update_or_create_count(key, dictionary, count=1):
     if key in dictionary:
-        dictionary[key] += 1
+        dictionary[key] += count
     else:
-        dictionary[key] = 1
+        dictionary[key] = count
     return dictionary
 
 
@@ -26,6 +26,7 @@ def main(root):
     type_to_count = {}
     category_to_count = {}
     task_type_to_count = {}
+    task_type_to_num = {}
     reason_to_count = {}
     input_lang_to_count = {}
     output_lang_to_count = {}
@@ -52,6 +53,7 @@ def main(root):
                 # task type
                 task_type_new = convert_category_to_task_type(category)
                 task_type_to_count = update_or_create_count(task_type_new, task_type_to_count)
+                task_type_to_num = update_or_create_count(task_type_new, task_type_to_num, count=total_size)
                 # reasoning on
                 if len(data["Reasoning"]) > 0:
                     reason = data["Reasoning"][0]
@@ -69,11 +71,13 @@ def main(root):
                 domain = data["Domains"][0]
                 domain_to_count = update_or_create_count(domain, domain_to_count)
 
+    total_size = np.sum(total_sizes)
     avg_total_size = np.mean(total_sizes)
     median_size = np.median(total_sizes)
 
     print("-" * 50)
     print(f"Total number of task: {num_task}")
+    print(f"Total instance number: {total_size}")
     print(f"Avg. total size: {avg_total_size}")
     print(f"Median: {median_size}")
     print("-" * 50)
@@ -85,6 +89,9 @@ def main(root):
     print("-" * 50)
     print("Task type to count:")
     print_dict(task_type_to_count)
+    print("-" * 50)
+    print("Task type to number:")
+    print_dict(task_type_to_num)
     print("-" * 50)
     print("Reasoning type to count:")
     print_dict(reason_to_count)
