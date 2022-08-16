@@ -24,13 +24,13 @@ model_to_ids = {
     "tk-instruct-11b": "allenai/tk-instruct-11b-def"
 }
 
-all_instruction_items = [
-    "task_id",
+all_instruction_items = {
+    # "task_id",
     "Definition",
     "Type",
     "Categories",
     "Reasoning",
     "Input_language",
     "Output_language",
-    "Domains"
-]
+    # "Domains"
+}
