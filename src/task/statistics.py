@@ -33,6 +33,8 @@ def main(root):
     lang_to_count = {}
     domain_to_count = {}
 
+    prompt_to_count = {}
+
     if not os.path.exists(root) or os.path.isfile(root):
         raise ValueError(f"Path not exists or is not a directory: {root}")
     for file_name in os.listdir(root):
@@ -70,6 +72,9 @@ def main(root):
                 # domain
                 domain = data["Domains"][0]
                 domain_to_count = update_or_create_count(domain, domain_to_count)
+                # prompt
+                prompt = data["Prompt"][0]
+                prompt_to_count = update_or_create_count(prompt, prompt_to_count)
 
     total_size = np.sum(total_sizes)
     avg_total_size = np.mean(total_sizes)
@@ -107,6 +112,9 @@ def main(root):
     print("-" * 50)
     print("Domain to count:")
     print_dict(domain_to_count)
+    print("-" * 50)
+    print("Prompt to count:")
+    print_dict(prompt_to_count)
 
 
 if __name__ == "__main__":
