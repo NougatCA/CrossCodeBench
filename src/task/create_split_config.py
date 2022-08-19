@@ -227,8 +227,16 @@ def category_task(meta, split_name):
             return "eval"
         else:
             return "tune"
-    elif split_name == "subtype_multi_label":
-        if "Multi-label" in meta["Type"]:
+    elif split_name == "intra_code2text":
+        if task_type.startswith("Generation"):
+            if task_type == "Generation -> Code-to-Text":
+                return "eval"
+            else:
+                return "tune"
+        else:
+            return "none"
+    elif split_name == "inter_code2text":
+        if task_type == "Generation -> Code-to-Text":
             return "eval"
         else:
             return "tune"
@@ -238,7 +246,7 @@ def category_task(meta, split_name):
 
 def main():
     task_dir = "../../tasks/"
-    config_name = "cross_translation"
+    config_name = "inter_multi_label"
     # split to task name
     splits_to_tasks = {
         "tune": [],
