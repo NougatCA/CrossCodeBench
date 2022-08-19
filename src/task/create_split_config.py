@@ -113,14 +113,6 @@ def category_task_intra_code_to_text(task_dir, task_name):
         return "none"
 
 
-def write_config(task_dir, splits_to_tasks, config_name):
-    split_dir = os.path.join(task_dir, "split")
-    if not os.path.exists(split_dir):
-        os.makedirs(split_dir)
-    with open(os.path.join(split_dir, f"{config_name}.json"), mode="w", encoding="utf-8") as f:
-        json.dump(splits_to_tasks, f, indent=4)
-
-
 def category_task_inter_multi_label(task_dir, task_name):
     with open(os.path.join(task_dir, f"{task_name}.meta.json"), mode="r", encoding="utf-8") as f:
         meta = json.load(f)
@@ -198,21 +190,64 @@ def category_task(meta, split_name):
                 return "tune"
         else:
             return "none"
+    elif split_name == "intra_multi_label":
+        if task_type == "Classification -> Multi-label":
+            return "eval"
+        elif task_type == "Classification -> Binary":
+            return "tune"
+        else:
+            return "none"
+    elif split_name == "inter_wrong_binary":
+        if "Wrong Binary Operator" in category:
+            return "eval"
+        else:
+            return "tune"
+    elif split_name == "inter_fixing":
+        if "Bug Fixing" in category:
+            return "eval"
+        else:
+            return "tune"
+    elif split_name == "inter_assert":
+        if meta["Categories"][0] == "Fill in the blank -> Assert Statement":
+            return "eval"
+        else:
+            return "tune"
+    elif split_name == "inter_multi_label":
+        if "Multi-label" in meta["Type"]:
+            return "eval"
+        else:
+            return "tune"
+    elif split_name == "type_translation":
+        if task_type == "Translation":
+            return "eval"
+        else:
+            return "tune"
+    elif split_name == "type_qa":
+        if task_type == "Question Answering":
+            return "eval"
+        else:
+            return "tune"
+    elif split_name == "subtype_multi_label":
+        if "Multi-label" in meta["Type"]:
+            return "eval"
+        else:
+            return "tune"
     else:
         raise ValueError(f"Split name {split_name} is not supported.")
 
 
 def main():
     task_dir = "../../tasks/"
-    config_name = "intra_wrong_binary"
+    config_name = "cross_translation"
     # split to task name
     splits_to_tasks = {
         "tune": [],
-        "eval": []
-    }
-    splits_to_sizes = {
-        "tune": 0,
-        "eval": 0
+        "eval": [],
+        "sizes": {
+            "tune": 0,
+            "eval": 0
+        }
+
     }
     for task_name in walk_tasks(task_dir):
         with open(os.path.join(task_dir, f"{task_name}.meta.json"), mode="r", encoding="utf-8") as f:
@@ -225,9 +260,17 @@ def main():
         assert split in ["tune", "eval"]
         splits_to_tasks[split].append(task_name)
         total_size = meta["Instance_number"][0]["total"]
-        splits_to_sizes[split] += total_size
+        splits_to_tasks["sizes"][split] += total_size
 
     write_config(task_dir, splits_to_tasks, config_name)
+
+
+def write_config(task_dir, splits_to_tasks, config_name):
+    split_dir = os.path.join(task_dir, "split")
+    if not os.path.exists(split_dir):
+        os.makedirs(split_dir)
+    with open(os.path.join(split_dir, f"{config_name}.json"), mode="w", encoding="utf-8") as f:
+        json.dump(splits_to_tasks, f, indent=4)
 
 
 if __name__ == "__main__":

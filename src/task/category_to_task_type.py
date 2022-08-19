@@ -1,6 +1,7 @@
 
 category_to_task_type = {
     "Detection -> Defect Detection": "Classification -> Binary",
+    "Detection -> Defect Detection -> Wrong Binary Operator": "Classification -> Binary",
     "Detection -> Clone Detection": "Classification -> Binary",
     "Classification -> Verification -> Docstring Verification": "Classification -> Binary",
     "Classification -> Verification -> Code Verification": "Classification -> Binary",
