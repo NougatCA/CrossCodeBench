@@ -29,7 +29,7 @@ all_instruction_items = {
     "Definition",
     "Type",
     "Categories",
-    "Reasoning",
+    # "Reasoning",
     "Input_language",
     "Output_language",
     # "Domains"
