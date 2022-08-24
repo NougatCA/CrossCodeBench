@@ -240,13 +240,25 @@ def category_task(meta, split_name):
             return "eval"
         else:
             return "tune"
+    elif split_name == "intra_clone":
+        if task_type.startswith("Classification"):
+            if task_type == "Classification -> Clone Detection":
+                return "eval"
+            else:
+                return "tune"
+        return "none"
+    elif split_name == "inter_clone":
+        if task_type == "Classification -> Clone Detection":
+            return "eval"
+        else:
+            return "tune"
     else:
         raise ValueError(f"Split name {split_name} is not supported.")
 
 
 def main():
     task_dir = "../../tasks/"
-    config_name = "inter_multi_label"
+    config_name = "inter_clone"
     # split to task name
     splits_to_tasks = {
         "tune": [],
