@@ -231,18 +231,15 @@ def create_dataset(args, instances, tokenizer):
                           max_source_length=args.max_source_length,
                           max_target_length=args.max_target_length,
                           max_instruction_length=args.max_instruction_length)
+    # pool = None
     if processes > 1:
         # with multiprocessing.get_context("spawn").Pool(processes=processes) as p:
-        #     features = list(p.map(encode_func, tqdm(instances, total=len(instances), desc="Encoding")))
-        pool = multiprocess.Pool(processes=processes)
-        # pool = multiprocess.get_context("spawn").Pool(processes=processes)
-        features = pool.map(encode_func, tqdm(instances, total=len(instances), desc="Encoding"))
-        pool.close()
-        pool.join()
+        with multiprocess.Pool(processes=processes) as p:
+            features = list(p.map(encode_func, tqdm(instances, total=len(instances), desc="Encoding")))
     else:
         features = [encode_func(example) for example in tqdm(instances, total=len(instances), desc="Encoding")]
 
-    logger.info(f"Features are prepared, start building the dataset.")
+    logger.info(f"Features are prepared, start building the dataset")
     input_dicts = []
     for f in tqdm(features, total=len(features), desc="Building"):
         input_ids = torch.tensor(f.input_ids, dtype=torch.long)
@@ -256,6 +253,11 @@ def create_dataset(args, instances, tokenizer):
             }
         )
     dataset = CodeDataset(input_dicts)
+
+    # if pool is not None:
+    #     pool.close()
+    #     pool.join()
+
     return dataset
 
 

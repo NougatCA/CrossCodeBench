@@ -240,14 +240,14 @@ def category_task(meta, split_name):
             return "eval"
         else:
             return "tune"
-    elif split_name == "intra_cd":
+    elif split_name == "cat-intra-cd":
         if task_type.startswith("Classification"):
             if category == "Detection -> Clone Detection":
                 return "eval"
             else:
                 return "tune"
         return "none"
-    elif split_name == "inter_cd":
+    elif split_name == "cat-inter-cd":
         if category == "Detection -> Clone Detection":
             return "eval"
         else:
@@ -258,7 +258,7 @@ def category_task(meta, split_name):
 
 def main():
     task_dir = "../../tasks/"
-    config_name = "inter_cd"
+    config_name = "cat-inter-cd"
     # split to task name
     splits_to_tasks = {
         "tune": [],
