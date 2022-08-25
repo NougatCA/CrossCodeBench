@@ -92,6 +92,8 @@ def main():
     logger.debug("Configurations:\n{}".format(config_table))
 
     # init wandb
+    if args.disable_wandb:
+        args.wandb_mode = "disabled"
     with open("wandb_api.key", mode="r", encoding="utf-8") as f:
         os.environ["WANDB_API_KEY"] = f.read().strip()
     run = wandb.init(project="Code-Instructions",

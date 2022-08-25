@@ -117,6 +117,8 @@ def add_args(parser: ArgumentParser):
     parser.add_argument("--wandb_mode", type=str, default="online",
                         choices=["online", "offline", "disabled"],
                         help="Set the wandb mode.")
+    parser.add_argument("--disable_wandb", action="store_true", default=False,
+                        help="Disable wandb tracking.")
 
 
 def check_args(args):
