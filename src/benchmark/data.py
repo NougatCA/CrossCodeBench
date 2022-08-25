@@ -9,6 +9,7 @@ from typing import Union
 import logging
 from tqdm import tqdm
 import multiprocessing
+import multiprocess
 from functools import partial
 from typing import List
 
@@ -231,8 +232,13 @@ def create_dataset(args, instances, tokenizer):
                           max_target_length=args.max_target_length,
                           max_instruction_length=args.max_instruction_length)
     if processes > 1:
-        with multiprocessing.Pool(processes=processes) as p:
-            features = list(p.map(encode_func, tqdm(instances, total=len(instances), desc="Encoding")))
+        # with multiprocessing.get_context("spawn").Pool(processes=processes) as p:
+        #     features = list(p.map(encode_func, tqdm(instances, total=len(instances), desc="Encoding")))
+        pool = multiprocess.Pool(processes=processes)
+        # pool = multiprocess.get_context("spawn").Pool(processes=processes)
+        features = pool.map(encode_func, tqdm(instances, total=len(instances), desc="Encoding"))
+        pool.close()
+        pool.join()
     else:
         features = [encode_func(example) for example in tqdm(instances, total=len(instances), desc="Encoding")]
 
