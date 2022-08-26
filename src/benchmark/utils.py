@@ -95,10 +95,6 @@ def get_short_run_name(args):
         tokens.append("prompt")
     elif args.use_instruction:
         tokens.append(f"instruction-{args.num_pos_examples}/{args.num_neg_examples}")
-        # if args.instruction_items:
-        #     tokens.append(args.instruction_items)
-        # else:
-        #     tokens.append("all")
     else:
         tokens.append("none")
 
