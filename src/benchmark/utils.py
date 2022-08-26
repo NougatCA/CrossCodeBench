@@ -106,6 +106,7 @@ def get_short_run_name(args):
         tokens.append("no-tuned")
 
     tokens.append(args.task_split_config)
+    tokens.append(str(args.max_sample_per_task))
     return "_".join([token for token in tokens if token is not None and token != ""])
 
 
