@@ -120,6 +120,10 @@ def add_args(parser: ArgumentParser):
     parser.add_argument("--disable_wandb", action="store_true", default=False,
                         help="Disable wandb tracking.")
 
+    # upper bound
+    parser.add_argument("--upper_bound", action="store_true", default=False,
+                        help="Run upper bound mode.")
+
 
 def check_args(args):
     """Check if args values are valid, and conduct some default settings."""

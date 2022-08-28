@@ -46,6 +46,9 @@ class CodeDataset(Dataset):
 def load_instances(args, split):
     assert split in ["tune", "eval"]
 
+    if args.upper_bound:
+        split = "eval"
+
     # load split config
     split_config_path = os.path.join(args.task_dir, "split", f"{args.task_split_config}.json")
     logger.info(f"Start loading task split configuration from '{split_config_path}'")
