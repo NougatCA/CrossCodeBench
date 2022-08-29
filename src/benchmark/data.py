@@ -46,7 +46,7 @@ class CodeDataset(Dataset):
 def load_instances(args, split):
     assert split in ["tune", "eval"]
 
-    if args.upper_bound:
+    if args.supervised:
         split = "eval"
 
     # load split config
@@ -84,6 +84,11 @@ def load_instances(args, split):
             # sample
             if split == "tune" and len(task_instances) > args.max_sample_per_task:
                 # task_instances = random.sample(task_instances, k=args.max_sample_per_task)
+                task_instances = task_instances[:args.max_sample_per_task]
+            elif split == "eval" and args.supervised:
+                if len(task_instances) <= args.max_eval_sample_per_task:
+                    continue
+                task_instances = task_instances[args.max_eval_sample_per_task:]
                 task_instances = task_instances[:args.max_sample_per_task]
             elif split == "eval" and len(task_instances) > args.max_eval_sample_per_task:
                 # task_instances = random.sample(task_instances, k=args.max_eval_sample_per_task)

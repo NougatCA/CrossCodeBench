@@ -110,6 +110,9 @@ def add_args(parser: ArgumentParser):
     parser.add_argument("--num_neg_examples", type=int, default=2,
                         choices=[0, 1, 2, 3, 4],
                         help="Number of negative examples in the instructions.")
+    # supervised fine-tuning
+    parser.add_argument("--supervised", action="store_true", default=False,
+                        help="Run supervised training.")
 
     # outputs and savings
     parser.add_argument("--run_name", type=str, default=None,
@@ -121,8 +124,7 @@ def add_args(parser: ArgumentParser):
                         help="Disable wandb tracking.")
 
     # upper bound
-    parser.add_argument("--upper_bound", action="store_true", default=False,
-                        help="Run upper bound mode.")
+
 
 
 def check_args(args):

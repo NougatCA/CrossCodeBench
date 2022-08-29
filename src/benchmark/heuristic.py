@@ -22,6 +22,8 @@ def main():
 
     parser.add_argument("--split", type=str, default="type-trans",
                         help="Task split config name.")
+    parser.add_argument("--task_dir", type=str, default="../../tasks",
+                        help="The directory where tasks store.")
     parser.add_argument("--max_eval_sample_per_task", type=int, default=500)
     parser.add_argument("--random_seed", type=int, default=42,
                         help="Random seed, 0 to disable.")
