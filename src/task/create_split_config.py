@@ -252,13 +252,32 @@ def category_task(meta, split_name):
             return "eval"
         else:
             return "tune"
+
+    elif split_name == "rewrite-other-bf":
+        if task_type.startswith("Generation"):
+            if "Bug Fixing" in category:
+                return "eval"
+            elif task_type.startswith("Generation -> Rewrite"):
+                return "none"
+            else:
+                return "tune"
+        else:
+            return "none"
+    elif split_name == "type-bf":
+        if task_type.startswith("Generation"):
+            if "Bug Fixing" in category:
+                return "eval"
+            else:
+                return "none"
+        else:
+            return "tune"
     else:
         raise ValueError(f"Split name {split_name} is not supported.")
 
 
 def main():
     task_dir = "../../tasks/"
-    config_name = "cat-inter-cd"
+    config_name = "type-bf"
     # split to task name
     splits_to_tasks = {
         "tune": [],
