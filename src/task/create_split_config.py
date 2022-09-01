@@ -271,13 +271,21 @@ def category_task(meta, split_name):
                 return "none"
         else:
             return "tune"
+    elif split_name == "type-other-bf":
+        if task_type == "Generation -> Rewrite":
+            if "Bug Fixing" in category:
+                return "eval"
+            else:
+                return "none"
+        else:
+            return "tune"
     else:
         raise ValueError(f"Split name {split_name} is not supported.")
 
 
 def main():
     task_dir = "../../tasks/"
-    config_name = "type-bf"
+    config_name = "type-other-bf"
     # split to task name
     splits_to_tasks = {
         "tune": [],
