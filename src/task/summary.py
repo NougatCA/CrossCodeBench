@@ -64,7 +64,9 @@ def main():
     save_dir = os.path.join("../../tasks/", "summary")
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
-    df.to_excel(os.path.join(save_dir, "summary.xlsx"))
+    df.to_excel(os.path.join(save_dir, "task_summary.xlsx"))
+    df.to_csv(os.path.join(save_dir, "task_summary.csv"))
+    df.to_markdown(os.path.join(save_dir, "task_summary.md"))
 
 
 if __name__ == "__main__":
