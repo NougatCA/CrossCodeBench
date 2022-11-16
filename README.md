@@ -1,5 +1,11 @@
 # CrossCodeBench
 
+## Requirements
+
+Our basic experimental environment is Python 3.9.12, PyTorch 1.12.0 and CUDA 11.6.
+
+The list of other requirements can be found in `requirements.txt`.
+
 ## Using Instructions
 
 Run `main.py` to start experiments. All available arguments are located in `args.py`, specific whatever you need.
@@ -38,15 +44,12 @@ python main.py \
 --task_split_config type-trans
 ```
 
-## Raw Datasets
+## Artifacts
 
-We provide the raw dataset collected to create our benchmark, which can be downloaded [here](https://1drv.ms/u/s!Aj4XBdlu8BS0gf9eThJIS0fFBas1kA?e=pW7wq8).
+We provide the raw dataset, tasks, meta information and their summaries, which can be downloaded [here](https://doi.org/10.5281/zenodo.7321934).
 Every directory is a dataset and can be parsed into several tasks.
 The script to load most of the dataset can be found in `src/task/utils.py`, except ones that need to be pre-process by using other tools such as Java.
 
-## Tasks with Meta Information
-
-All tasks with meta information can be downloaded [here](https://1drv.ms/u/s!Aj4XBdlu8BS0gf9dMWr2g7jLTnC1oA?e=FZZD3F).
 Each task corresponds to two Json files, `task_{id}_{name}.meta.json` and `task_{id}_{name}.data.json`.
 The former contains the meta information of the task, while the latter consists of all data instances.
 
